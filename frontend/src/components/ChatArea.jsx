@@ -33,20 +33,15 @@ export default function ChatArea({
     if (dragCounter.current === 0) setDragging(false);
   };
 
-  const handleDragOver = (e) => {
-    e.preventDefault();
-  };
+  const handleDragOver = (e) => e.preventDefault();
 
   const handleDrop = async (e) => {
     e.preventDefault();
     dragCounter.current = 0;
     setDragging(false);
-
     if (!chat) return;
-
     const files = Array.from(e.dataTransfer.files);
     if (files.length === 0) return;
-
     setUploading(true);
     for (const file of files) {
       try {
@@ -63,7 +58,7 @@ export default function ChatArea({
           file_type: res.data.file_type,
         });
       } catch (err) {
-        console.error("Drop upload failed:", err);
+        console.error(err);
       }
     }
     setUploading(false);
@@ -71,21 +66,21 @@ export default function ChatArea({
 
   return (
     <div
+      onDragEnter={handleDragEnter}
+      onDragLeave={handleDragLeave}
+      onDragOver={handleDragOver}
+      onDrop={handleDrop}
       style={{
-        background: dragging ? "var(--bg-1)" : "var(--bg-0)",
         flex: 1,
         display: "flex",
         flexDirection: "column",
         height: "100vh",
         minWidth: 0,
         position: "relative",
-        transition: "background 0.2s ease",
         overflow: "hidden",
+        background: dragging ? "var(--bg-1)" : "var(--bg-0)",
+        transition: "background 0.2s ease",
       }}
-      onDragEnter={handleDragEnter}
-      onDragLeave={handleDragLeave}
-      onDragOver={handleDragOver}
-      onDrop={handleDrop}
     >
       {/* Drag overlay */}
       {dragging && (
@@ -164,7 +159,7 @@ export default function ChatArea({
         </div>
       )}
 
-      {/* Header — ALWAYS visible */}
+      {/* HEADER — always visible, always on top */}
       <div
         style={{
           background: "var(--bg-1)",
@@ -174,9 +169,7 @@ export default function ChatArea({
           alignItems: "center",
           gap: 12,
           flexShrink: 0,
-          position: "sticky",
-          top: 0,
-          zIndex: 10,
+          zIndex: 20,
         }}
       >
         <button
@@ -220,6 +213,8 @@ export default function ChatArea({
           </span>
         )}
       </div>
+
+      {/* BODY */}
       {!chat ? (
         <div
           style={{
@@ -256,7 +251,7 @@ export default function ChatArea({
             style={{
               flex: 1,
               overflowY: "auto",
-              padding: "20px 16px",
+              padding: "16px",
               display: "flex",
               flexDirection: "column",
               gap: 8,
