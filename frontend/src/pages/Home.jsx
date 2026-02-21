@@ -2,32 +2,23 @@ import { useState, useEffect } from "react";
 import api from "../api";
 import Sidebar from "../components/Sidebar";
 import ChatArea from "../components/ChatArea";
-import { useTheme } from "../context/ThemeContext";
 
 export default function Home() {
   const [chats, setChats] = useState([]);
   const [activeChat, setActiveChat] = useState(null);
   const [items, setItems] = useState([]);
-  const [sidebarOpen, setSidebarOpen] = useState(window.innerWidth >= 768);
-  const { dark } = useTheme();
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   useEffect(() => {
     fetchChats();
+    // open sidebar by default only on desktop
+    if (window.innerWidth >= 768) setSidebarOpen(true);
   }, []);
 
   useEffect(() => {
     if (activeChat) fetchItems(activeChat.id);
     else setItems([]);
   }, [activeChat]);
-
-  useEffect(() => {
-    const handleResize = () => {
-      if (window.innerWidth >= 768) setSidebarOpen(true);
-      else setSidebarOpen(false);
-    };
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
 
   const fetchChats = async () => {
     const res = await api.get("/chats");
@@ -43,7 +34,7 @@ export default function Home() {
     const res = await api.post("/chats", { name });
     setChats((prev) => [res.data, ...prev]);
     setActiveChat(res.data);
-    if (window.innerWidth < 768) setSidebarOpen(false);
+    setSidebarOpen(false);
   };
 
   const handleDeleteChat = async (id) => {
@@ -78,23 +69,23 @@ export default function Home() {
 
   const handleSelectChat = (chat) => {
     setActiveChat(chat);
-    if (window.innerWidth < 768) setSidebarOpen(false);
+    setSidebarOpen(false);
   };
-
-  const isMobile = window.innerWidth < 768;
 
   return (
     <div
       style={{
-        background: "var(--bg-primary)",
-        display: "flex",
-        height: "100vh",
+        width: "100vw",
+        height: "100dvh",
         overflow: "hidden",
+        background: "var(--bg-0)",
         position: "relative",
+        display: "flex",
+        flexDirection: "column",
       }}
     >
-      {/* Mobile overlay backdrop */}
-      {isMobile && sidebarOpen && (
+      {/* Backdrop for sidebar on mobile */}
+      {sidebarOpen && (
         <div
           onClick={() => setSidebarOpen(false)}
           style={{
@@ -107,18 +98,17 @@ export default function Home() {
         />
       )}
 
-      {/* Sidebar */}
+      {/* Sidebar — always overlay on top */}
       <div
         style={{
-          position: isMobile ? "fixed" : "relative",
-          left: 0,
+          position: "fixed",
           top: 0,
-          bottom: 0,
-          zIndex: isMobile ? 50 : "auto",
+          left: 0,
+          height: "100dvh",
+          width: 256,
+          zIndex: 50,
           transform: sidebarOpen ? "translateX(0)" : "translateX(-100%)",
           transition: "transform 0.3s cubic-bezier(0.4,0,0.2,1)",
-          width: 256,
-          flexShrink: 0,
         }}
       >
         <Sidebar
@@ -131,14 +121,13 @@ export default function Home() {
         />
       </div>
 
-      {/* Chat area always full width on mobile */}
+      {/* Chat area — always full width */}
       <div
         style={{
           flex: 1,
-          minWidth: 0,
           display: "flex",
           flexDirection: "column",
-          height: "100vh",
+          height: "100dvh",
         }}
       >
         <ChatArea
