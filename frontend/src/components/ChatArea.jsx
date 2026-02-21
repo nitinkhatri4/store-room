@@ -76,11 +76,11 @@ export default function ChatArea({
         flex: 1,
         display: "flex",
         flexDirection: "column",
-        height: "100%",
-        overflow: "hidden",
+        height: "100vh",
         minWidth: 0,
         position: "relative",
         transition: "background 0.2s ease",
+        overflow: "hidden",
       }}
       onDragEnter={handleDragEnter}
       onDragLeave={handleDragLeave}
@@ -174,6 +174,9 @@ export default function ChatArea({
           alignItems: "center",
           gap: 12,
           flexShrink: 0,
+          position: "sticky",
+          top: 0,
+          zIndex: 10,
         }}
       >
         <button
@@ -191,8 +194,8 @@ export default function ChatArea({
             strokeLinecap="round"
           >
             <line x1="3" y1="6" x2="21" y2="6" />
-            <line x1="3" y1="12" x2={sidebarOpen ? "15" : "21"} y2="12" />
-            <line x1="3" y1="18" x2={sidebarOpen ? "18" : "21"} y2="18" />
+            <line x1="3" y1="12" x2="21" y2="12" />
+            <line x1="3" y1="18" x2="21" y2="18" />
           </svg>
         </button>
         {chat ? (
@@ -217,7 +220,6 @@ export default function ChatArea({
           </span>
         )}
       </div>
-
       {!chat ? (
         <div
           style={{
