@@ -74,7 +74,7 @@ export default function ChatArea({
         flex: 1,
         display: "flex",
         flexDirection: "column",
-        height: "100vh",
+        height: "100dvh",
         minWidth: 0,
         position: "relative",
         overflow: "hidden",
@@ -170,6 +170,8 @@ export default function ChatArea({
           gap: 12,
           flexShrink: 0,
           zIndex: 20,
+          position: "sticky",
+          top: 0,
         }}
       >
         <button
