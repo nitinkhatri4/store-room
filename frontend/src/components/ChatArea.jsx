@@ -164,7 +164,7 @@ export default function ChatArea({
         </div>
       )}
 
-      {/* Header */}
+      {/* Header — ALWAYS visible */}
       <div
         style={{
           background: "var(--bg-1)",
@@ -179,7 +179,7 @@ export default function ChatArea({
         <button
           className="icon-btn"
           onClick={onToggleSidebar}
-          title={sidebarOpen ? "Hide sidebar" : "Show sidebar"}
+          title="Toggle sidebar"
         >
           <svg
             width="14"
