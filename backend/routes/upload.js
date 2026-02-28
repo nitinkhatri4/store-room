@@ -23,19 +23,18 @@ router.post("/", authMiddleware, upload.single("file"), async (req, res) => {
     const result = await cloudinary.uploader.upload(dataURI, {
       folder: "storeroom",
       resource_type: "auto",
+      use_filename: true,
     });
 
     // For non-images, Cloudinary puts them under /raw/upload/ not /image/upload/
     // Fix the URL if needed
-    const url = isImage
-      ? result.secure_url
-      : result.secure_url.replace("/image/upload/", "/raw/upload/");
+    const url = result.secure_url;
 
     res.json({
-      url,
+      url: result.secure_url,
       file_name: req.file.originalname,
       file_type: req.file.mimetype,
-      is_image: isImage,
+      is_image: result.resource_type === "image",
     });
   } catch (err) {
     res.status(500).json({ message: err.message });
