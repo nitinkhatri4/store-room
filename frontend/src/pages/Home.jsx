@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useParams, useNavigate } from "react-router-dom";
 import api from "../api";
 import Sidebar from "../components/Sidebar";
 import ChatArea from "../components/ChatArea";
@@ -8,6 +9,9 @@ export default function Home() {
   const [activeChat, setActiveChat] = useState(null);
   const [items, setItems] = useState([]);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const { chatName } = useParams();
+  const navigate = useNavigate();
+  const isMobile = window.innerWidth < 1024;
 
   useEffect(() => {
     fetchChats();
@@ -16,9 +20,23 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
-    if (activeChat) fetchItems(activeChat.id);
-    else setItems([]);
+    if (activeChat) {
+      fetchItems(activeChat.id);
+      navigate(`/${encodeURIComponent(activeChat.name)}`);
+    } else {
+      setItems([]);
+    }
   }, [activeChat]);
+
+  useEffect(() => {
+    if (chatName && chats.length > 0) {
+      const found = chats.find(
+        (c) =>
+          c.name.toLowerCase() === decodeURIComponent(chatName).toLowerCase(),
+      );
+      if (found) setActiveChat(found);
+    }
+  }, [chatName, chats]);
 
   const fetchChats = async () => {
     const res = await api.get("/chats");
@@ -47,6 +65,7 @@ export default function Home() {
     await api.put(`/chats/${id}`, { name });
     setChats((prev) => prev.map((c) => (c.id === id ? { ...c, name } : c)));
     if (activeChat?.id === id) setActiveChat((prev) => ({ ...prev, name }));
+    navigate(`/${encodeURIComponent(name)}`); // add this line
   };
 
   const handleSendItem = async (itemData) => {
@@ -68,6 +87,7 @@ export default function Home() {
   };
 
   const handleSelectChat = (chat) => {
+    navigate(`/${encodeURIComponent(chat.name)}`);
     setActiveChat(chat);
     setSidebarOpen(false);
   };
@@ -79,13 +99,14 @@ export default function Home() {
         height: "100dvh",
         overflow: "hidden",
         background: "var(--bg-0)",
-        position: "relative",
+        // position: "relative",
         display: "flex",
-        flexDirection: "column",
+        flexDirection: "row",
+        // flexDirection: "column",
       }}
     >
       {/* Backdrop for sidebar on mobile */}
-      {sidebarOpen && (
+      {/* {sidebarOpen && window.innerWidth < 768 && (
         <div
           onClick={() => setSidebarOpen(false)}
           style={{
@@ -93,22 +114,19 @@ export default function Home() {
             inset: 0,
             background: "rgba(0,0,0,0.6)",
             zIndex: 40,
-            backdropFilter: "blur(2px)",
           }}
         />
-      )}
+      )} */}
 
       {/* Sidebar — always overlay on top */}
       <div
         style={{
-          position: "fixed",
-          top: 0,
-          left: 0,
-          height: "100dvh",
-          width: 256,
-          zIndex: 50,
-          transform: sidebarOpen ? "translateX(0)" : "translateX(-100%)",
-          transition: "transform 0.3s cubic-bezier(0.4,0,0.2,1)",
+          width: sidebarOpen ? 256 : 0,
+          transition: "width 0.25s ease",
+          overflow: "hidden",
+          height: "100%",
+          borderRight: sidebarOpen ? "1px solid var(--border-1)" : "none",
+          flexShrink: 0,
         }}
       >
         <Sidebar
@@ -127,7 +145,8 @@ export default function Home() {
           flex: 1,
           display: "flex",
           flexDirection: "column",
-          height: "100dvh",
+          height: "100%",
+          minWidth: 0,
         }}
       >
         <ChatArea

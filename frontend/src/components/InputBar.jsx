@@ -22,10 +22,8 @@ export default function InputBar({ onSend }) {
   const handleSend = () => {
     const val = text.trim();
     if (!val) return;
-
     let type = "note";
     let title = val.length > 50 ? val.slice(0, 50) + "..." : val;
-
     if (isPassword) {
       type = "password";
       title = "Password";
@@ -37,7 +35,6 @@ export default function InputBar({ onSend }) {
         title = val.slice(0, 40);
       }
     }
-
     onSend({ type, title, content: val });
     setText("");
     setIsPassword(false);
@@ -77,180 +74,145 @@ export default function InputBar({ onSend }) {
   return (
     <div
       style={{
-        background: "var(--bg-1)",
-        borderTop: "1px solid var(--border-1)",
-        padding: "10px 14px 12px",
+        padding: "10px 0 16px",
         flexShrink: 0,
-        position: "relative",
+        display: "flex",
+        justifyContent: "center",
       }}
     >
-      {/* Attach menu — vertical list */}
-      {showAttach && (
-        <div
-          className="pop-up"
-          style={{
-            position: "absolute",
-            bottom: "100%",
-            left: 0,
-            marginBottom: 8,
-            background: "var(--bg-3)",
-            border: "1px solid var(--border-2)",
-            borderRadius: 14,
-            padding: 6,
-            display: "flex",
-            flexDirection: "column",
-            gap: 2,
-            minWidth: 180,
-            boxShadow: "0 8px 32px rgba(0,0,0,0.3)",
-          }}
-        >
-          <button
-            onClick={() => {
-              imageRef.current.click();
-              setShowAttach(false);
-            }}
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: 10,
-              padding: "8px 12px",
-              borderRadius: 10,
-              background: "transparent",
-              border: "none",
-              cursor: "pointer",
-              fontFamily: "inherit",
-              transition: "background 0.15s",
-              textAlign: "left",
-            }}
-            onMouseOver={(e) =>
-              (e.currentTarget.style.background = "var(--bg-4)")
-            }
-            onMouseOut={(e) =>
-              (e.currentTarget.style.background = "transparent")
-            }
-          >
-            <div
-              style={{
-                width: 30,
-                height: 30,
-                borderRadius: 8,
-                background: "rgba(96,165,250,0.12)",
-                border: "1px solid rgba(96,165,250,0.2)",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                fontSize: 14,
-                flexShrink: 0,
-              }}
-            >
-              🖼
-            </div>
-            <div>
-              <p
-                style={{
-                  color: "var(--text-1)",
-                  fontSize: 12,
-                  fontWeight: 500,
-                }}
-              >
-                Image
-              </p>
-              <p style={{ color: "var(--text-3)", fontSize: 10, marginTop: 1 }}>
-                jpg, png, gif, webp
-              </p>
-            </div>
-          </button>
-          <button
-            onClick={() => {
-              fileRef.current.click();
-              setShowAttach(false);
-            }}
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: 10,
-              padding: "8px 12px",
-              borderRadius: 10,
-              background: "transparent",
-              border: "none",
-              cursor: "pointer",
-              fontFamily: "inherit",
-              transition: "background 0.15s",
-              textAlign: "left",
-            }}
-            onMouseOver={(e) =>
-              (e.currentTarget.style.background = "var(--bg-4)")
-            }
-            onMouseOut={(e) =>
-              (e.currentTarget.style.background = "transparent")
-            }
-          >
-            <div
-              style={{
-                width: 30,
-                height: 30,
-                borderRadius: 8,
-                background: "rgba(167,139,250,0.12)",
-                border: "1px solid rgba(167,139,250,0.2)",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                flexShrink: 0,
-              }}
-            >
-              <svg
-                width="14"
-                height="14"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="#a78bfa"
-                strokeWidth="2"
-              >
-                <path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z" />
-                <polyline points="13 2 13 9 20 9" />
-              </svg>
-            </div>
-            <div>
-              <p
-                style={{
-                  color: "var(--text-1)",
-                  fontSize: 12,
-                  fontWeight: 500,
-                }}
-              >
-                File
-              </p>
-              <p style={{ color: "var(--text-3)", fontSize: 10, marginTop: 1 }}>
-                pdf, txt, doc, csv, zip
-              </p>
-            </div>
-          </button>
-        </div>
-      )}
-
-      {/* Input row */}
       <div
         className="input-bar-wrap"
         style={{
-          background: "var(--bg-2)",
           display: "flex",
           alignItems: "flex-end",
-          gap: 6,
-          padding: "6px 6px 6px 8px",
+          gap: 5,
+          padding: "8px 10px",
+          width: "min(680px, 90%)",
+          position: "relative",
         }}
       >
+        {/* Attach menu */}
+        {showAttach && (
+          <div
+            className="pop-up"
+            style={{
+              position: "absolute",
+              bottom: "100%",
+              left: 0,
+              marginBottom: 6,
+              background: "var(--bg-2)",
+              border: "1px solid var(--border-hover)",
+              borderRadius: 6,
+              padding: 4,
+              display: "flex",
+              flexDirection: "column",
+              gap: 1,
+              minWidth: 160,
+            }}
+          >
+            {[
+              {
+                label: "image",
+                sub: "jpg, png, gif, webp",
+                ref: imageRef,
+                icon: (
+                  <svg
+                    width="12"
+                    height="12"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="var(--text-2)"
+                    strokeWidth="2"
+                  >
+                    <rect x="3" y="3" width="18" height="18" rx="2" />
+                    <circle cx="8.5" cy="8.5" r="1.5" />
+                    <polyline points="21 15 16 10 5 21" />
+                  </svg>
+                ),
+              },
+              {
+                label: "file",
+                sub: "pdf, doc, zip, csv",
+                ref: fileRef,
+                icon: (
+                  <svg
+                    width="12"
+                    height="12"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="var(--text-2)"
+                    strokeWidth="2"
+                  >
+                    <path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z" />
+                    <polyline points="13 2 13 9 20 9" />
+                  </svg>
+                ),
+              },
+            ].map(({ label, sub, ref, icon }) => (
+              <button
+                key={label}
+                onClick={() => {
+                  ref.current.click();
+                  setShowAttach(false);
+                }}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 10,
+                  padding: "7px 10px",
+                  borderRadius: 4,
+                  background: "transparent",
+                  border: "none",
+                  cursor: "pointer",
+                  fontFamily: "'Geist', sans-serif",
+                  textAlign: "left",
+                  transition: "background 0.1s",
+                }}
+                onMouseOver={(e) =>
+                  (e.currentTarget.style.background = "var(--bg-3)")
+                }
+                onMouseOut={(e) =>
+                  (e.currentTarget.style.background = "transparent")
+                }
+              >
+                {icon}
+                <div>
+                  <p
+                    style={{
+                      color: "var(--text-1)",
+                      fontSize: 11,
+                      fontFamily: "'Geist Mono', monospace",
+                    }}
+                  >
+                    {label}
+                  </p>
+                  <p
+                    style={{
+                      color: "var(--text-3)",
+                      fontSize: 10,
+                      marginTop: 1,
+                    }}
+                  >
+                    {sub}
+                  </p>
+                </div>
+              </button>
+            ))}
+          </div>
+        )}
+
         {/* + attach */}
         <button
           onClick={() => setShowAttach((p) => !p)}
           disabled={uploading}
-          className={`icon-btn ${showAttach ? "active-gold" : ""}`}
-          style={{ width: 34, height: 34, flexShrink: 0 }}
+          className={`icon-btn ${showAttach ? "active-state" : ""}`}
+          style={{ width: 28, height: 28, flexShrink: 0 }}
           title="Attach"
         >
           {uploading ? (
             <svg
-              width="13"
-              height="13"
+              width="11"
+              height="11"
               viewBox="0 0 24 24"
               fill="none"
               stroke="currentColor"
@@ -261,15 +223,15 @@ export default function InputBar({ onSend }) {
             </svg>
           ) : (
             <svg
-              width="13"
-              height="13"
+              width="11"
+              height="11"
               viewBox="0 0 24 24"
               fill="none"
               stroke="currentColor"
               strokeWidth="2.5"
               style={{
                 transform: showAttach ? "rotate(45deg)" : "none",
-                transition: "transform 0.2s",
+                transition: "transform 0.15s",
               }}
             >
               <line x1="12" y1="5" x2="12" y2="19" />
@@ -278,16 +240,16 @@ export default function InputBar({ onSend }) {
           )}
         </button>
 
-        {/* 🔒 password toggle */}
+        {/* password toggle */}
         <button
           onClick={() => setIsPassword((p) => !p)}
-          className={`icon-btn ${isPassword ? "active-gold" : ""}`}
-          style={{ width: 34, height: 34, flexShrink: 0 }}
+          className={`icon-btn ${isPassword ? "active-state" : ""}`}
+          style={{ width: 28, height: 28, flexShrink: 0 }}
           title="Mark as password"
         >
           <svg
-            width="12"
-            height="12"
+            width="11"
+            height="11"
             viewBox="0 0 24 24"
             fill="none"
             stroke="currentColor"
@@ -303,33 +265,32 @@ export default function InputBar({ onSend }) {
           ref={textareaRef}
           placeholder={
             isPassword
-              ? "Paste your password..."
-              : "Type a note, paste a link..."
+              ? "paste your password..."
+              : "type a note, paste a link..."
           }
           value={text}
           onChange={(e) => setText(e.target.value)}
           onKeyDown={handleKey}
           rows={1}
-          className={isPassword ? "mono" : ""}
           style={{
             flex: 1,
             background: "transparent",
             border: "none",
             outline: "none",
             resize: "none",
-            color: isPassword ? "var(--accent)" : "var(--text-1)",
-            fontSize: 13,
+            color: "var(--text-1)",
+            fontSize: 12,
             fontFamily: isPassword
-              ? "IBM Plex Mono, monospace"
-              : "Sora, sans-serif",
+              ? "'Geist Mono', monospace"
+              : "'Geist', sans-serif",
             lineHeight: 1.5,
-            padding: "6px 4px",
-            maxHeight: 130,
+            padding: "5px 4px",
+            maxHeight: 120,
             overflowY: "auto",
           }}
           onInput={(e) => {
             e.target.style.height = "auto";
-            e.target.style.height = Math.min(e.target.scrollHeight, 130) + "px";
+            e.target.style.height = Math.min(e.target.scrollHeight, 120) + "px";
           }}
         />
 
@@ -338,12 +299,12 @@ export default function InputBar({ onSend }) {
           onClick={handleSend}
           disabled={!text.trim()}
           className={`icon-btn ${text.trim() ? "accent" : ""}`}
-          style={{ width: 34, height: 34, flexShrink: 0 }}
+          style={{ width: 28, height: 28, flexShrink: 0 }}
           title="Send"
         >
           <svg
-            width="13"
-            height="13"
+            width="11"
+            height="11"
             viewBox="0 0 24 24"
             fill="none"
             stroke="currentColor"
@@ -356,7 +317,6 @@ export default function InputBar({ onSend }) {
         </button>
       </div>
 
-      {/* Hidden inputs */}
       <input
         ref={imageRef}
         type="file"
@@ -371,7 +331,6 @@ export default function InputBar({ onSend }) {
         style={{ display: "none" }}
         onChange={(e) => e.target.files[0] && handleUpload(e.target.files[0])}
       />
-
       <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
     </div>
   );

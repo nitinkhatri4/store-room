@@ -1,21 +1,94 @@
-import { useState } from 'react';
-import Lightbox from './Lightbox';
+import { useState } from "react";
+import Lightbox from "./Lightbox";
 
 const TYPE_CONFIG = {
-  note:     { color: 'rgba(255,255,255,0.04)', border: 'var(--border-2)', label: 'Note' },
-  password: { color: 'rgba(240,165,0,0.06)',   border: 'rgba(240,165,0,0.18)', label: 'Password' },
-  link:     { color: 'rgba(52,211,153,0.06)',  border: 'rgba(52,211,153,0.18)', label: 'Link' },
-  image:    { color: 'rgba(96,165,250,0.06)',  border: 'rgba(96,165,250,0.18)', label: 'Image' },
-  file:     { color: 'rgba(167,139,250,0.06)', border: 'rgba(167,139,250,0.18)', label: 'File' },
+  note: { bg: "var(--bg-2)", border: "var(--border)", label: "note" },
+  password: {
+    bg: "rgba(74,144,210,0.08)",
+    border: "rgba(74,144,210,0.2)",
+    label: "password",
+  },
+  link: {
+    bg: "rgba(107,159,255,0.08)",
+    border: "rgba(107,159,255,0.2)",
+    label: "link",
+  },
+  image: { bg: "var(--bg-2)", border: "var(--border)", label: "image" },
+  file: {
+    bg: "rgba(255,255,255,0.03)",
+    border: "var(--border-hover)",
+    label: "file",
+  },
 };
 
 const TypeIcon = ({ type }) => {
   const icons = {
-    note: <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>,
-    password: <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>,
-    link: <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>,
-    image: <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>,
-    file: <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><polyline points="13 2 13 9 20 9"/></svg>,
+    note: (
+      <svg
+        width="12"
+        height="12"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+      >
+        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+        <polyline points="14 2 14 8 20 8" />
+      </svg>
+    ),
+    password: (
+      <svg
+        width="12"
+        height="12"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="#4a90d9"
+        strokeWidth="2"
+      >
+        <rect x="3" y="11" width="18" height="11" rx="2" />
+        <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+      </svg>
+    ),
+    link: (
+      <svg
+        width="12"
+        height="12"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="#6b9fff"
+        strokeWidth="2"
+      >
+        <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
+        <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
+      </svg>
+    ),
+    image: (
+      <svg
+        width="12"
+        height="12"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+      >
+        <rect x="3" y="3" width="18" height="18" rx="2" />
+        <circle cx="8.5" cy="8.5" r="1.5" />
+        <polyline points="21 15 16 10 5 21" />
+      </svg>
+    ),
+    file: (
+      <svg
+        width="12"
+        height="12"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+      >
+        <path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z" />
+        <polyline points="13 2 13 9 20 9" />
+      </svg>
+    ),
   };
   return icons[type] || icons.note;
 };
@@ -33,22 +106,84 @@ export default function MessageBubble({ item, onDelete, onEdit }) {
     setEditing(false);
   };
 
-  const formatTime = (ts) => {
-    return new Date(ts).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false });
+  const handleDownload = async (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    try {
+      const response = await fetch(item.content);
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = item.file_name || item.title;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error("Download failed", err);
+    }
   };
 
+  const formatTime = (ts) =>
+    new Date(ts).toLocaleTimeString([], {
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: false,
+    });
+
   const renderContent = () => {
-    if (item.type === 'password') {
+    if (item.type === "password") {
       return (
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginTop: 8 }}>
-          <span className="mono" style={{ fontSize: 13, color: revealed ? 'var(--accent)' : 'var(--text-2)', letterSpacing: revealed ? 'normal' : '0.12em' }}>
-            {revealed ? item.content : '•'.repeat(Math.min(item.content?.length || 10, 14))}
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 10,
+            marginTop: 6,
+          }}
+        >
+          <span
+            style={{
+              fontFamily: "'Geist Mono', monospace",
+              fontSize: 13,
+              color: revealed ? "var(--text-1)" : "var(--text-3)",
+              letterSpacing: revealed ? "normal" : "0.1em",
+            }}
+          >
+            {revealed
+              ? item.content
+              : "•".repeat(Math.min(item.content?.length || 10, 14))}
           </span>
-          <button onClick={() => setRevealed(!revealed)} style={{ fontSize: 11, color: 'var(--accent)', background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'inherit' }}>
-            {revealed ? 'hide' : 'reveal'}
+          <button
+            onClick={() => setRevealed(!revealed)}
+            style={{
+              fontSize: 11,
+              fontFamily: "'Geist Mono', monospace",
+              color: "var(--text-3)",
+              background: "none",
+              border: "none",
+              cursor: "pointer",
+            }}
+            onMouseOver={(e) => (e.target.style.color = "var(--text-1)")}
+            onMouseOut={(e) => (e.target.style.color = "var(--text-3)")}
+          >
+            {revealed ? "hide" : "reveal"}
           </button>
           {revealed && (
-            <button onClick={() => navigator.clipboard.writeText(item.content)} style={{ fontSize: 11, color: 'var(--text-3)', background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'inherit' }}>
+            <button
+              onClick={() => navigator.clipboard.writeText(item.content)}
+              style={{
+                fontSize: 11,
+                fontFamily: "'Geist Mono', monospace",
+                color: "var(--text-3)",
+                background: "none",
+                border: "none",
+                cursor: "pointer",
+              }}
+              onMouseOver={(e) => (e.target.style.color = "var(--text-1)")}
+              onMouseOut={(e) => (e.target.style.color = "var(--text-3)")}
+            >
               copy
             </button>
           )}
@@ -56,95 +191,385 @@ export default function MessageBubble({ item, onDelete, onEdit }) {
       );
     }
 
-    if (item.type === 'image') {
+    if (item.type === "image") {
       return (
-        <img
-          src={item.content}
-          alt={item.title}
-          style={{ marginTop: 10, borderRadius: 12, maxHeight: 260, maxWidth: '100%', objectFit: 'cover', cursor: 'zoom-in', display: 'block', transition: 'opacity 0.15s' }}
-          onClick={() => setLightboxSrc(item.content)}
-          onMouseOver={e => e.target.style.opacity = '0.85'}
-          onMouseOut={e => e.target.style.opacity = '1'}
-        />
+        <div
+          style={{
+            marginTop: 8,
+            position: "relative",
+            display: "inline-block",
+          }}
+        >
+          <img
+            src={item.content}
+            alt={item.title}
+            style={{
+              borderRadius: 4,
+              maxHeight: 240,
+              maxWidth: "100%",
+              objectFit: "cover",
+              cursor: "zoom-in",
+              display: "block",
+              transition: "opacity 0.1s",
+            }}
+            onClick={() =>
+              setLightboxSrc({
+                src: item.content,
+                name: item.file_name || item.title,
+              })
+            }
+            onMouseOver={(e) => (e.target.style.opacity = "0.85")}
+            onMouseOut={(e) => (e.target.style.opacity = "1")}
+          />
+          <button
+            onClick={handleDownload}
+            style={{
+              position: "absolute",
+              bottom: 8,
+              right: 8,
+              width: 28,
+              height: 28,
+              borderRadius: 4,
+              background: "rgba(0,0,0,0.6)",
+              border: "1px solid rgba(255,255,255,0.15)",
+              color: "#fff",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              cursor: "pointer",
+              backdropFilter: "blur(4px)",
+            }}
+            onMouseOver={(e) =>
+              (e.currentTarget.style.background = "rgba(0,0,0,0.85)")
+            }
+            onMouseOut={(e) =>
+              (e.currentTarget.style.background = "rgba(0,0,0,0.6)")
+            }
+          >
+            <svg
+              width="12"
+              height="12"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+            >
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+              <polyline points="7 10 12 15 17 10" />
+              <line x1="12" y1="15" x2="12" y2="3" />
+            </svg>
+          </button>
+        </div>
       );
     }
 
-    if (item.type === 'link') {
-      return (
-        <a href={item.content} target="_blank" rel="noreferrer" style={{ fontSize: 13, color: '#34d399', display: 'block', marginTop: 8, wordBreak: 'break-all', textDecoration: 'none' }}
-          onMouseOver={e => e.target.style.opacity = '0.7'} onMouseOut={e => e.target.style.opacity = '1'}>
-          {item.content}
-        </a>
-      );
-    }
-
-    if (item.type === 'file') {
+    if (item.type === "link") {
       return (
         <a
           href={item.content}
           target="_blank"
           rel="noreferrer"
-          download={item.file_name}
-          style={{ display: 'flex', alignItems: 'center', gap: 12, marginTop: 10, padding: '10px 14px', background: 'var(--bg-2)', border: '1px solid var(--border-2)', borderRadius: 12, textDecoration: 'none', transition: 'border-color 0.15s' }}
-          onMouseOver={e => e.currentTarget.style.borderColor = 'var(--border-3)'}
-          onMouseOut={e => e.currentTarget.style.borderColor = 'var(--border-2)'}
+          style={{
+            fontFamily: "'Geist Mono', monospace",
+            fontSize: 12,
+            color: "#6b9fff",
+            display: "block",
+            marginTop: 6,
+            wordBreak: "break-all",
+            textDecoration: "none",
+          }}
+          onMouseOver={(e) => (e.target.style.opacity = "0.7")}
+          onMouseOut={(e) => (e.target.style.opacity = "1")}
         >
-          <div style={{ width: 36, height: 36, borderRadius: 10, background: 'rgba(167,139,250,0.1)', border: '1px solid rgba(167,139,250,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#a78bfa" strokeWidth="2"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><polyline points="13 2 13 9 20 9"/></svg>
-          </div>
-          <div style={{ minWidth: 0, flex: 1 }}>
-            <p style={{ color: 'var(--text-1)', fontSize: 12, fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{item.file_name || item.title}</p>
-            <p style={{ color: 'var(--text-3)', fontSize: 11, marginTop: 2 }}>Click to download</p>
-          </div>
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--text-3)" strokeWidth="2" style={{ flexShrink: 0 }}>
-            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
-          </svg>
+          {item.content}
         </a>
+      );
+    }
+
+    if (item.type === "file") {
+      return (
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 10,
+            marginTop: 8,
+            padding: "8px 10px",
+            background: "var(--bg-2)",
+            border: "1px solid var(--border)",
+            borderRadius: 4,
+          }}
+        >
+          <svg
+            width="13"
+            height="13"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="var(--text-3)"
+            strokeWidth="2"
+          >
+            <path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z" />
+            <polyline points="13 2 13 9 20 9" />
+          </svg>
+          <p
+            style={{
+              fontFamily: "'Geist Mono', monospace",
+              color: "var(--text-3)",
+              fontSize: 11,
+              flex: 1,
+            }}
+          >
+            {item.file_type === "application/pdf"
+              ? "click to preview"
+              : "click to download"}
+          </p>
+          <a
+            href={item.content}
+            target="_blank"
+            rel="noreferrer"
+            style={{
+              color: "var(--text-3)",
+              display: "flex",
+              alignItems: "center",
+            }}
+            onMouseOver={(e) => (e.currentTarget.style.color = "var(--text-1)")}
+            onMouseOut={(e) => (e.currentTarget.style.color = "var(--text-3)")}
+          >
+            <svg
+              width="13"
+              height="13"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+            >
+              <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 0 2-2h6" />
+              <polyline points="15 3 21 3 21 9" />
+              <line x1="10" y1="14" x2="21" y2="3" />
+            </svg>
+          </a>
+          <button
+            onClick={handleDownload}
+            style={{
+              color: "var(--text-3)",
+              display: "flex",
+              alignItems: "center",
+              background: "none",
+              border: "none",
+              cursor: "pointer",
+              padding: 0,
+            }}
+            onMouseOver={(e) => (e.currentTarget.style.color = "var(--text-1)")}
+            onMouseOut={(e) => (e.currentTarget.style.color = "var(--text-3)")}
+          >
+            <svg
+              width="13"
+              height="13"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+            >
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+              <polyline points="7 10 12 15 17 10" />
+              <line x1="12" y1="15" x2="12" y2="3" />
+            </svg>
+          </button>
+        </div>
       );
     }
 
     if (editing) {
       return (
-        <div style={{ marginTop: 8, display: 'flex', flexDirection: 'column', gap: 8 }}>
+        <div
+          style={{
+            marginTop: 6,
+            display: "flex",
+            flexDirection: "column",
+            gap: 6,
+          }}
+        >
           <textarea
             value={editContent}
-            onChange={e => setEditContent(e.target.value)}
+            onChange={(e) => setEditContent(e.target.value)}
             rows={3}
             autoFocus
-            style={{ background: 'var(--bg-2)', border: '1px solid var(--accent-border)', borderRadius: 10, padding: '8px 12px', color: 'var(--text-1)', outline: 'none', resize: 'none', fontSize: 13, fontFamily: 'inherit', width: '100%' }}
+            style={{
+              background: "var(--bg-2)",
+              border: "1px solid var(--border-hover)",
+              borderRadius: 4,
+              padding: "7px 10px",
+              color: "var(--text-1)",
+              outline: "none",
+              resize: "none",
+              fontSize: 13,
+              fontFamily: "'Geist', sans-serif",
+              width: "100%",
+            }}
           />
-          <div style={{ display: 'flex', gap: 6 }}>
-            <button onClick={handleSave} style={{ background: 'var(--accent)', color: '#000', border: 'none', borderRadius: 8, padding: '5px 12px', fontSize: 11, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>Save</button>
-            <button onClick={() => setEditing(false)} style={{ background: 'none', border: 'none', color: 'var(--text-3)', fontSize: 11, cursor: 'pointer', fontFamily: 'inherit' }}>Cancel</button>
+          <div style={{ display: "flex", gap: 6 }}>
+            <button
+              onClick={handleSave}
+              style={{
+                background: "var(--text-1)",
+                color: "#080909",
+                border: "none",
+                borderRadius: 3,
+                padding: "4px 10px",
+                fontSize: 11,
+                fontWeight: 600,
+                cursor: "pointer",
+                fontFamily: "'Geist Mono', monospace",
+              }}
+            >
+              save
+            </button>
+            <button
+              onClick={() => setEditing(false)}
+              style={{
+                background: "none",
+                border: "none",
+                color: "var(--text-3)",
+                fontSize: 11,
+                cursor: "pointer",
+                fontFamily: "'Geist Mono', monospace",
+              }}
+            >
+              cancel
+            </button>
           </div>
         </div>
       );
     }
 
-    return <p style={{ fontSize: 13, color: 'var(--text-2)', marginTop: 8, lineHeight: 1.6, whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>{item.content}</p>;
+    return (
+      <p
+        style={{
+          fontSize: 13,
+          color: "var(--text-2)",
+          marginTop: 6,
+          lineHeight: 1.6,
+          whiteSpace: "pre-wrap",
+          wordBreak: "break-word",
+        }}
+      >
+        {item.content}
+      </p>
+    );
   };
 
   return (
     <>
-      {lightboxSrc && <Lightbox src={lightboxSrc} onClose={() => setLightboxSrc(null)} />}
-      <div className="msg-enter" style={{ display: 'flex', justifyContent: 'flex-end' }}>
-        <div style={{ background: cfg.color, border: `1px solid ${cfg.border}`, borderRadius: '16px 4px 16px 16px', padding: '12px 14px', width: 'fit-content', maxWidth: 'min(440px, 88%)' }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-              <span style={{ color: 'var(--text-3)' }}><TypeIcon type={item.type} /></span>
-              <span style={{ color: 'var(--text-1)', fontSize: 12, fontWeight: 600 }}>{item.title}</span>
+      {lightboxSrc && (
+        <Lightbox
+          src={lightboxSrc.src}
+          fileName={lightboxSrc.name}
+          onClose={() => setLightboxSrc(null)}
+        />
+      )}
+      <div
+        className="msg-enter"
+        style={{ display: "flex", justifyContent: "flex-end" }}
+      >
+        <div
+          style={{
+            background: cfg.bg,
+            border: `1px solid ${cfg.border}`,
+            borderRadius: "12px 3px 12px 12px",
+            padding: "10px 12px",
+            width: "fit-content",
+            maxWidth: "min(520px, 90%)",
+            transition: "opacity 0.1s",
+          }}
+          onMouseOver={(e) => (e.currentTarget.style.opacity = "0.9")}
+          onMouseOut={(e) => (e.currentTarget.style.opacity = "1")}
+        >
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              gap: 12,
+            }}
+          >
+            <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
+              <span style={{ color: "var(--text-3)" }}>
+                <TypeIcon type={item.type} />
+              </span>
+              <span
+                style={{
+                  fontFamily: "'Geist Mono', monospace",
+                  color: "var(--text-1)",
+                  fontSize: 13,
+                  fontWeight: 500,
+                }}
+              >
+                {item.title}
+              </span>
             </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
-              <span style={{ color: 'var(--text-3)', fontSize: 10 }} className="mono">{formatTime(item.created_at)}</span>
-              {item.type === 'note' && !editing && (
-                <button onClick={() => setEditing(true)} style={{ fontSize: 10, color: 'var(--text-3)', background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'inherit' }}
-                  onMouseOver={e => e.target.style.color = 'var(--text-1)'} onMouseOut={e => e.target.style.color = 'var(--text-3)'}>
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 6,
+                flexShrink: 0,
+              }}
+            >
+              <span
+                style={{
+                  fontFamily: "'Geist Mono', monospace",
+                  color: "var(--text-3)",
+                  fontSize: 11,
+                }}
+              >
+                {formatTime(item.created_at)}
+              </span>
+              {item.type === "note" && !editing && (
+                <button
+                  onClick={() => setEditing(true)}
+                  style={{
+                    fontSize: 11,
+                    fontFamily: "'Geist Mono', monospace",
+                    color: "var(--text-3)",
+                    background: "none",
+                    border: "none",
+                    cursor: "pointer",
+                  }}
+                  onMouseOver={(e) => (e.target.style.color = "var(--text-1)")}
+                  onMouseOut={(e) => (e.target.style.color = "var(--text-3)")}
+                >
                   edit
                 </button>
               )}
-              <button onClick={() => onDelete(item.id)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-3)', display: 'flex', alignItems: 'center' }}
-                onMouseOver={e => e.currentTarget.style.color = '#ef4444'} onMouseOut={e => e.currentTarget.style.color = 'var(--text-3)'}>
-                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M9 6V4h6v2"/></svg>
+              <button
+                onClick={() => onDelete(item.id)}
+                style={{
+                  background: "none",
+                  border: "none",
+                  cursor: "pointer",
+                  color: "var(--text-3)",
+                  display: "flex",
+                  alignItems: "center",
+                }}
+                onMouseOver={(e) =>
+                  (e.currentTarget.style.color = "var(--danger)")
+                }
+                onMouseOut={(e) =>
+                  (e.currentTarget.style.color = "var(--text-3)")
+                }
+              >
+                <svg
+                  width="11"
+                  height="11"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                >
+                  <polyline points="3 6 5 6 21 6" />
+                  <path d="M19 6l-1 14H6L5 6" />
+                  <path d="M9 6V4h6v2" />
+                </svg>
               </button>
             </div>
           </div>

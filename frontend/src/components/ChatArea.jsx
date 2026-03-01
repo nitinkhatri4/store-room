@@ -26,13 +26,11 @@ export default function ChatArea({
     dragCounter.current++;
     if (e.dataTransfer.items?.length > 0) setDragging(true);
   };
-
   const handleDragLeave = (e) => {
     e.preventDefault();
     dragCounter.current--;
     if (dragCounter.current === 0) setDragging(false);
   };
-
   const handleDragOver = (e) => e.preventDefault();
 
   const handleDrop = async (e) => {
@@ -74,114 +72,110 @@ export default function ChatArea({
         flex: 1,
         display: "flex",
         flexDirection: "column",
-        height: "100dvh",
+        height: "100%",
         minWidth: 0,
         position: "relative",
         overflow: "hidden",
         background: dragging ? "var(--bg-1)" : "var(--bg-0)",
-        transition: "background 0.2s ease",
+        transition: "background 0.15s",
       }}
     >
-      {/* Drag overlay */}
       {dragging && (
         <div
           style={{
             position: "absolute",
             inset: 0,
             zIndex: 50,
-            background: "rgba(240,165,0,0.04)",
-            border: "2px dashed var(--accent-border)",
-            borderRadius: 16,
+            border: "1px dashed var(--border-hover)",
+            borderRadius: 4,
             margin: 8,
             display: "flex",
             flexDirection: "column",
             alignItems: "center",
             justifyContent: "center",
-            gap: 10,
+            gap: 8,
             pointerEvents: "none",
           }}
         >
-          <div
+          <svg
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="var(--text-3)"
+            strokeWidth="1.5"
+          >
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+            <polyline points="17 8 12 3 7 8" />
+            <line x1="12" y1="3" x2="12" y2="15" />
+          </svg>
+          <p
             style={{
-              width: 56,
-              height: 56,
-              borderRadius: 16,
-              background: "var(--accent-dim)",
-              border: "1px solid var(--accent-border)",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              fontSize: 26,
+              color: "var(--text-2)",
+              fontSize: 13,
+              fontFamily: "'Geist Mono', monospace",
             }}
           >
-            📎
-          </div>
-          <p style={{ color: "var(--accent)", fontSize: 14, fontWeight: 600 }}>
-            Drop to upload
-          </p>
-          <p style={{ color: "var(--text-3)", fontSize: 12 }}>
-            Images and files supported
+            drop to upload
           </p>
         </div>
       )}
 
-      {/* Upload indicator */}
       {uploading && (
         <div
           style={{
             position: "absolute",
-            top: 12,
+            top: 10,
             right: 12,
             zIndex: 40,
-            background: "var(--bg-3)",
-            border: "1px solid var(--accent-border)",
-            borderRadius: 10,
-            padding: "6px 12px",
+            background: "var(--bg-2)",
+            border: "1px solid var(--border-hover)",
+            borderRadius: 4,
+            padding: "5px 10px",
             display: "flex",
             alignItems: "center",
-            gap: 8,
+            gap: 7,
           }}
         >
           <svg
-            width="12"
-            height="12"
+            width="11"
+            height="11"
             viewBox="0 0 24 24"
             fill="none"
-            stroke="var(--accent)"
+            stroke="var(--text-2)"
             strokeWidth="2"
             style={{ animation: "spin 1s linear infinite" }}
           >
             <path d="M21 12a9 9 0 1 1-6.219-8.56" />
           </svg>
-          <span style={{ fontSize: 12, color: "var(--text-2)" }}>
-            Uploading...
+          <span
+            style={{
+              fontSize: 12,
+              fontFamily: "'Geist Mono', monospace",
+              color: "var(--text-2)",
+            }}
+          >
+            uploading...
           </span>
         </div>
       )}
 
-      {/* HEADER — always visible, always on top */}
+      {/* Header */}
       <div
         style={{
-          background: "var(--bg-1)",
-          borderBottom: "1px solid var(--border-1)",
-          padding: "12px 16px",
+          background: "var(--bg-0)",
+          borderBottom: "1px solid var(--border)",
+          padding: "10px 16px 10px 12px",
           display: "flex",
           alignItems: "center",
-          gap: 12,
+          gap: 10,
           flexShrink: 0,
-          zIndex: 20,
-          position: "sticky",
-          top: 0,
         }}
       >
-        <button
-          className="icon-btn"
-          onClick={onToggleSidebar}
-          title="Toggle sidebar"
-        >
+        <button className="icon-btn" onClick={onToggleSidebar}>
           <svg
-            width="14"
-            height="14"
+            width="13"
+            height="13"
             viewBox="0 0 24 24"
             fill="none"
             stroke="currentColor"
@@ -194,29 +188,42 @@ export default function ChatArea({
           </svg>
         </button>
         {chat ? (
-          <div>
-            <h2
+          <>
+            <span
               style={{
-                color: "var(--text-1)",
-                fontWeight: 600,
+                fontFamily: "'Geist Mono', monospace",
                 fontSize: 14,
-                letterSpacing: "-0.01em",
+                fontWeight: 500,
+                color: "var(--text-1)",
+                letterSpacing: "-0.02em",
               }}
             >
               {chat.name}
-            </h2>
-            <p style={{ color: "var(--text-3)", fontSize: 11, marginTop: 1 }}>
-              {items.length} item{items.length !== 1 ? "s" : ""}
-            </p>
-          </div>
+            </span>
+            <span
+              style={{
+                fontFamily: "'Geist Mono', monospace",
+                fontSize: 11,
+                color: "var(--text-3)",
+                marginLeft: 2,
+              }}
+            >
+              {items.length} items
+            </span>
+          </>
         ) : (
-          <span style={{ color: "var(--text-3)", fontSize: 13 }}>
-            Select a chat
+          <span
+            style={{
+              fontFamily: "'Geist Mono', monospace",
+              fontSize: 13,
+              color: "var(--text-3)",
+            }}
+          >
+            select a collection
           </span>
         )}
       </div>
 
-      {/* BODY */}
       {!chat ? (
         <div
           style={{
@@ -225,26 +232,27 @@ export default function ChatArea({
             flexDirection: "column",
             alignItems: "center",
             justifyContent: "center",
-            gap: 12,
+            gap: 8,
           }}
         >
-          <div
+          <svg
+            width="32"
+            height="32"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="var(--text-3)"
+            strokeWidth="1"
+          >
+            <path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z" />
+          </svg>
+          <p
             style={{
-              background: "var(--bg-2)",
-              border: "1px solid var(--border-2)",
-              width: 64,
-              height: 64,
-              borderRadius: 20,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              fontSize: 28,
+              fontFamily: "'Geist Mono', monospace",
+              color: "var(--text-3)",
+              fontSize: 13,
             }}
           >
-            📦
-          </div>
-          <p style={{ color: "var(--text-3)", fontSize: 13 }}>
-            Pick a chat or create one
+            pick a collection or create one
           </p>
         </div>
       ) : (
@@ -253,10 +261,10 @@ export default function ChatArea({
             style={{
               flex: 1,
               overflowY: "auto",
-              padding: "16px",
+              padding: "12px 20px",
               display: "flex",
               flexDirection: "column",
-              gap: 8,
+              gap: 4,
             }}
           >
             {items.length === 0 ? (
@@ -271,13 +279,24 @@ export default function ChatArea({
                   gap: 6,
                 }}
               >
-                <p style={{ color: "var(--text-3)", fontSize: 13 }}>
-                  Nothing stored yet
+                <p
+                  style={{
+                    fontFamily: "'Geist Mono', monospace",
+                    color: "var(--text-3)",
+                    fontSize: 13,
+                  }}
+                >
+                  nothing stored yet
                 </p>
                 <p
-                  style={{ color: "var(--text-3)", fontSize: 11, opacity: 0.5 }}
+                  style={{
+                    fontFamily: "'Geist Mono', monospace",
+                    color: "var(--text-3)",
+                    fontSize: 11,
+                    opacity: 0.5,
+                  }}
                 >
-                  Drop files here or type below ↓
+                  drop files here or type below ↓
                 </p>
               </div>
             ) : (
@@ -295,7 +314,6 @@ export default function ChatArea({
           <InputBar onSend={onSendItem} />
         </>
       )}
-
       <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
     </div>
   );

@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 
-export default function Lightbox({ src, onClose }) {
+export default function Lightbox({ src, fileName, onClose }) {
   useEffect(() => {
     const handler = (e) => {
       if (e.key === "Escape") onClose();
@@ -46,6 +46,55 @@ export default function Lightbox({ src, onClose }) {
         }}
       >
         ×
+      </button>
+      <button
+        onClick={async (e) => {
+          e.stopPropagation();
+          const res = await fetch(src);
+          const blob = await res.blob();
+          const url = window.URL.createObjectURL(blob);
+          const a = document.createElement("a");
+          a.href = url;
+          a.download = fileName || src.split("/").pop();
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          window.URL.revokeObjectURL(url);
+        }}
+        style={{
+          position: "absolute",
+          top: 16,
+          right: 60,
+          width: 36,
+          height: 36,
+          borderRadius: 10,
+          background: "rgba(255,255,255,0.1)",
+          border: "1px solid rgba(255,255,255,0.15)",
+          color: "#fff",
+          cursor: "pointer",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+        onMouseOver={(e) =>
+          (e.currentTarget.style.background = "rgba(255,255,255,0.2)")
+        }
+        onMouseOut={(e) =>
+          (e.currentTarget.style.background = "rgba(255,255,255,0.1)")
+        }
+      >
+        <svg
+          width="14"
+          height="14"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+        >
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+          <polyline points="7 10 12 15 17 10" />
+          <line x1="12" y1="15" x2="12" y2="3" />
+        </svg>
       </button>
       <img
         src={src}

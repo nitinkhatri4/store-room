@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { useTheme } from "../context/ThemeContext";
 import { useNavigate } from "react-router-dom";
 
 export default function Sidebar({
@@ -15,7 +14,6 @@ export default function Sidebar({
   const [renamingId, setRenamingId] = useState(null);
   const [renameVal, setRenameVal] = useState("");
   const [showInput, setShowInput] = useState(false);
-  const { dark, setDark } = useTheme();
   const navigate = useNavigate();
 
   const handleCreate = (e) => {
@@ -39,8 +37,8 @@ export default function Sidebar({
     <div
       style={{
         background: "var(--bg-1)",
-        borderRight: "1px solid var(--border-1)",
-        width: 256,
+        borderRight: "1px solid var(--border)",
+        width: 220,
         flexShrink: 0,
         height: "100%",
         display: "flex",
@@ -50,87 +48,84 @@ export default function Sidebar({
       {/* Header */}
       <div
         style={{
-          padding: "16px 14px 12px",
-          borderBottom: "1px solid var(--border-1)",
+          padding: "14px 12px 12px",
+          borderBottom: "1px solid var(--border)",
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
-          gap: 8,
         }}
       >
-        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
           <div
             style={{
-              background: "var(--accent-dim)",
-              border: "1px solid var(--accent-border)",
-              width: 32,
-              height: 32,
-              borderRadius: 10,
+              width: 20,
+              height: 20,
+              border: "1px solid var(--border-hover)",
+              borderRadius: 4,
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              fontSize: 16,
               flexShrink: 0,
             }}
           >
-            📦
+            <svg
+              width="10"
+              height="10"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="var(--text-2)"
+              strokeWidth="2"
+            >
+              <path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z" />
+            </svg>
           </div>
           <span
             style={{
+              fontFamily: "'Geist Mono', monospace",
+              fontSize: 13,
+              fontWeight: 500,
               color: "var(--text-1)",
-              fontWeight: 600,
-              fontSize: 14,
-              letterSpacing: "-0.01em",
+              letterSpacing: "-0.02em",
             }}
           >
-            Storeroom
+            storeroom
           </span>
         </div>
-        <div style={{ display: "flex", gap: 5 }}>
-          <button
-            className="icon-btn"
-            onClick={() => setDark(!dark)}
-            title="Toggle theme"
-            style={{ fontSize: 13 }}
+        <button
+          className="icon-btn"
+          onClick={() => {
+            localStorage.clear();
+            navigate("/login");
+          }}
+          title="Logout"
+        >
+          <svg
+            width="11"
+            height="11"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
           >
-            {dark ? "☀️" : "🌙"}
-          </button>
-          <button
-            className="icon-btn danger"
-            onClick={() => {
-              localStorage.clear();
-              navigate("/login");
-            }}
-            title="Logout"
-          >
-            <svg
-              width="13"
-              height="13"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-            >
-              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
-              <polyline points="16 17 21 12 16 7" />
-              <line x1="21" y1="12" x2="9" y2="12" />
-            </svg>
-          </button>
-        </div>
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+            <polyline points="16 17 21 12 16 7" />
+            <line x1="21" y1="12" x2="9" y2="12" />
+          </svg>
+        </button>
       </div>
 
       {/* Search */}
-      <div style={{ padding: "10px 10px 4px" }}>
+      <div style={{ padding: "10px 10px 6px" }}>
         <div
           style={{
-            background: "var(--bg-2)",
-            border: "1px solid var(--border-1)",
-            borderRadius: 12,
             display: "flex",
             alignItems: "center",
             gap: 8,
-            padding: "8px 12px",
+            padding: "7px 10px",
+            background: "var(--bg-2)",
+            border: "1px solid var(--border)",
+            borderRadius: 4,
           }}
         >
           <svg
@@ -138,24 +133,23 @@ export default function Sidebar({
             height="12"
             viewBox="0 0 24 24"
             fill="none"
-            stroke="currentColor"
+            stroke="var(--text-3)"
             strokeWidth="2"
-            style={{ color: "var(--text-3)", flexShrink: 0 }}
           >
             <circle cx="11" cy="11" r="8" />
             <path d="m21 21-4.35-4.35" />
           </svg>
           <input
             type="text"
-            placeholder="Search..."
+            placeholder="search..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             style={{
               background: "transparent",
               color: "var(--text-1)",
               outline: "none",
-              fontSize: 12,
-              fontFamily: "inherit",
+              fontSize: 13,
+              fontFamily: "'Geist', sans-serif",
               flex: 1,
               minWidth: 0,
             }}
@@ -164,13 +158,13 @@ export default function Sidebar({
       </div>
 
       {/* New chat */}
-      <div style={{ padding: "6px 10px 8px" }}>
+      <div style={{ padding: "4px 10px 8px" }}>
         {showInput ? (
-          <form onSubmit={handleCreate} style={{ display: "flex", gap: 6 }}>
+          <form onSubmit={handleCreate} style={{ display: "flex", gap: 5 }}>
             <input
               autoFocus
               type="text"
-              placeholder="Name your chat..."
+              placeholder="collection name..."
               value={newChatName}
               onChange={(e) => setNewChatName(e.target.value)}
               onBlur={() => {
@@ -179,20 +173,20 @@ export default function Sidebar({
               style={{
                 flex: 1,
                 background: "var(--bg-2)",
-                border: "1px solid var(--accent-border)",
-                borderRadius: 10,
-                padding: "8px 12px",
+                border: "1px solid var(--border-hover)",
+                borderRadius: 4,
+                padding: "7px 10px",
                 color: "var(--text-1)",
                 outline: "none",
-                fontSize: 12,
-                fontFamily: "inherit",
+                fontSize: 13,
+                fontFamily: "'Geist Mono', monospace",
                 minWidth: 0,
               }}
             />
             <button
               type="submit"
               className="icon-btn accent"
-              style={{ width: 34, height: 34 }}
+              style={{ width: 30, height: 30 }}
             >
               ✓
             </button>
@@ -204,29 +198,31 @@ export default function Sidebar({
               width: "100%",
               display: "flex",
               alignItems: "center",
-              gap: 8,
-              padding: "10px 12px",
-              borderRadius: 12,
-              border: "1px dashed var(--border-2)",
+              gap: 7,
+              padding: "7px 10px",
+              borderRadius: 4,
+              border: "1px solid var(--border)",
               background: "transparent",
-              color: "var(--text-2)",
+              color: "var(--text-3)",
               cursor: "pointer",
-              fontSize: 12,
-              fontFamily: "inherit",
-              transition: "all 0.15s ease",
+              fontSize: 13,
+              fontFamily: "'Geist', sans-serif",
+              transition: "all 0.1s ease",
             }}
             onMouseOver={(e) => {
-              e.currentTarget.style.borderColor = "var(--accent-border)";
-              e.currentTarget.style.color = "var(--accent)";
+              e.currentTarget.style.borderColor = "var(--border-hover)";
+              e.currentTarget.style.color = "var(--text-1)";
+              e.currentTarget.style.background = "var(--bg-3)";
             }}
             onMouseOut={(e) => {
-              e.currentTarget.style.borderColor = "var(--border-2)";
-              e.currentTarget.style.color = "var(--text-2)";
+              e.currentTarget.style.borderColor = "var(--border)";
+              e.currentTarget.style.color = "var(--text-3)";
+              e.currentTarget.style.background = "transparent";
             }}
           >
             <svg
-              width="13"
-              height="13"
+              width="11"
+              height="11"
               viewBox="0 0 24 24"
               fill="none"
               stroke="currentColor"
@@ -235,23 +231,23 @@ export default function Sidebar({
               <line x1="12" y1="5" x2="12" y2="19" />
               <line x1="5" y1="12" x2="19" y2="12" />
             </svg>
-            New chat
+            new chat
           </button>
         )}
       </div>
 
-      {/* Divider label */}
-      <div style={{ padding: "2px 14px 6px" }}>
+      {/* Section label */}
+      <div style={{ padding: "4px 12px 4px" }}>
         <span
           style={{
-            color: "var(--text-3)",
+            fontFamily: "'Geist Mono', monospace",
             fontSize: 10,
-            fontWeight: 600,
-            letterSpacing: "0.08em",
+            letterSpacing: "0.1em",
             textTransform: "uppercase",
+            color: "var(--text-3)",
           }}
         >
-          Chats
+          collections
         </span>
       </div>
 
@@ -260,10 +256,10 @@ export default function Sidebar({
         style={{
           flex: 1,
           overflowY: "auto",
-          padding: "0 8px 12px",
+          padding: "2px 6px 12px",
           display: "flex",
           flexDirection: "column",
-          gap: 2,
+          gap: 1,
         }}
       >
         {filtered.map((chat) => (
@@ -274,16 +270,16 @@ export default function Sidebar({
           >
             <div
               style={{
-                width: 6,
-                height: 6,
+                width: 5,
+                height: 5,
                 borderRadius: "50%",
                 background:
                   activeChat?.id === chat.id
-                    ? "var(--accent)"
-                    : "var(--border-3)",
+                    ? "var(--text-1)"
+                    : "var(--text-3)",
                 flexShrink: 0,
-                marginRight: 10,
-                transition: "background 0.2s",
+                marginRight: 8,
+                transition: "background 0.15s",
               }}
             />
 
@@ -299,8 +295,8 @@ export default function Sidebar({
                   background: "transparent",
                   outline: "none",
                   color: "var(--text-1)",
-                  fontSize: 12,
-                  fontFamily: "inherit",
+                  fontSize: 13,
+                  fontFamily: "'Geist Mono', monospace",
                   flex: 1,
                   minWidth: 0,
                 }}
@@ -308,22 +304,35 @@ export default function Sidebar({
             ) : (
               <span
                 style={{
-                  fontSize: 12,
+                  fontSize: 13,
+                  fontFamily: "'Geist Mono', monospace",
                   color:
                     activeChat?.id === chat.id
-                      ? "var(--accent)"
+                      ? "var(--text-1)"
                       : "var(--text-2)",
                   flex: 1,
                   minWidth: 0,
                   overflow: "hidden",
                   textOverflow: "ellipsis",
                   whiteSpace: "nowrap",
-                  paddingRight: 40,
+                  paddingRight: 36,
                 }}
               >
                 {chat.name}
               </span>
             )}
+
+            <span
+              style={{
+                fontSize: 10,
+                fontFamily: "'Geist Mono', monospace",
+                color: "var(--text-3)",
+                marginRight: 28,
+                flexShrink: 0,
+              }}
+            >
+              {chat.item_count || ""}
+            </span>
 
             <div className="chat-item-actions">
               <button
@@ -333,9 +342,9 @@ export default function Sidebar({
                   setRenameVal(chat.name);
                 }}
                 style={{
-                  width: 24,
-                  height: 24,
-                  borderRadius: 6,
+                  width: 22,
+                  height: 22,
+                  borderRadius: 3,
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
@@ -343,7 +352,6 @@ export default function Sidebar({
                   border: "none",
                   color: "var(--text-3)",
                   cursor: "pointer",
-                  transition: "color 0.15s",
                 }}
                 onMouseOver={(e) =>
                   (e.currentTarget.style.color = "var(--text-1)")
@@ -370,9 +378,9 @@ export default function Sidebar({
                   onDeleteChat(chat.id);
                 }}
                 style={{
-                  width: 24,
-                  height: 24,
-                  borderRadius: 6,
+                  width: 22,
+                  height: 22,
+                  borderRadius: 3,
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
@@ -380,9 +388,10 @@ export default function Sidebar({
                   border: "none",
                   color: "var(--text-3)",
                   cursor: "pointer",
-                  transition: "color 0.15s",
                 }}
-                onMouseOver={(e) => (e.currentTarget.style.color = "#ef4444")}
+                onMouseOver={(e) =>
+                  (e.currentTarget.style.color = "var(--danger)")
+                }
                 onMouseOut={(e) =>
                   (e.currentTarget.style.color = "var(--text-3)")
                 }
@@ -403,17 +412,17 @@ export default function Sidebar({
             </div>
           </div>
         ))}
-
         {filtered.length === 0 && (
           <p
             style={{
               color: "var(--text-3)",
               fontSize: 12,
+              fontFamily: "'Geist Mono', monospace",
               textAlign: "center",
-              marginTop: 24,
+              marginTop: 20,
             }}
           >
-            No chats yet
+            no collections yet
           </p>
         )}
       </div>

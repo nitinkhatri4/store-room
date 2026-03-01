@@ -1,24 +1,24 @@
 import { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate, useSearchParams, Link } from "react-router-dom";
 import api from "../api";
 
-export default function Login() {
-  const [form, setForm] = useState({ username: "", password: "" });
+export default function ResetPassword() {
+  const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const token = searchParams.get("token");
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     setError("");
     try {
-      const res = await api.post("/auth/login", form);
-      localStorage.setItem("token", res.data.token);
-      localStorage.setItem("username", res.data.username);
-      navigate("/");
+      await api.post("/auth/reset-password", { token, password });
+      navigate("/login");
     } catch (err) {
-      setError(err.response?.data?.message || "Invalid credentials");
+      setError(err.response?.data?.message || "something went wrong");
     } finally {
       setLoading(false);
     }
@@ -28,7 +28,7 @@ export default function Login() {
     <div
       style={{
         background: "var(--bg-0)",
-        height: "100dvh",
+        height: "100vh",
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
@@ -36,7 +36,7 @@ export default function Login() {
       }}
       className="fade-in"
     >
-      <div style={{ width: "100%", maxWidth: 320, margin: "auto" }}>
+      <div style={{ width: "100%", maxWidth: 320 }}>
         <div
           style={{
             border: "1px solid var(--border)",
@@ -44,7 +44,6 @@ export default function Login() {
             overflow: "hidden",
           }}
         >
-          {/* Card header */}
           <div
             style={{
               padding: "18px 20px 14px",
@@ -100,11 +99,10 @@ export default function Login() {
                 color: "var(--text-3)",
               }}
             >
-              sign in to your vault
+              set a new password
             </p>
           </div>
 
-          {/* Card body */}
           <div
             style={{
               padding: "16px 20px 20px",
@@ -115,32 +113,10 @@ export default function Login() {
             }}
           >
             <input
-              type="text"
-              placeholder="username"
-              value={form.username}
-              onChange={(e) => setForm({ ...form, username: e.target.value })}
-              style={{
-                width: "100%",
-                padding: "9px 12px",
-                background: "var(--bg-1)",
-                border: "1px solid var(--border)",
-                borderRadius: 4,
-                color: "var(--text-1)",
-                fontSize: 12,
-                fontFamily: "'Geist', sans-serif",
-                outline: "none",
-                transition: "border-color 0.15s",
-              }}
-              onFocus={(e) =>
-                (e.target.style.borderColor = "var(--border-hover)")
-              }
-              onBlur={(e) => (e.target.style.borderColor = "var(--border)")}
-            />
-            <input
               type="password"
-              placeholder="password"
-              value={form.password}
-              onChange={(e) => setForm({ ...form, password: e.target.value })}
+              placeholder="new password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && handleSubmit(e)}
               style={{
                 width: "100%",
@@ -178,7 +154,7 @@ export default function Login() {
 
             <button
               onClick={handleSubmit}
-              disabled={loading}
+              disabled={loading || !token}
               style={{
                 width: "100%",
                 padding: "9px",
@@ -195,43 +171,22 @@ export default function Login() {
                 transition: "opacity 0.15s",
               }}
             >
-              {loading ? "signing in..." : "sign in →"}
+              {loading ? "resetting..." : "reset password →"}
             </button>
 
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                marginTop: 2,
-              }}
-            >
+            <div style={{ textAlign: "center", marginTop: 2 }}>
               <Link
-                to="/forgot-password"
+                to="/login"
                 style={{
                   fontFamily: "'Geist Mono', monospace",
                   fontSize: 10,
                   color: "var(--text-3)",
                   textDecoration: "none",
-                  transition: "color 0.1s",
                 }}
                 onMouseOver={(e) => (e.target.style.color = "var(--text-1)")}
                 onMouseOut={(e) => (e.target.style.color = "var(--text-3)")}
               >
-                forgot password?
-              </Link>
-              <Link
-                to="/register"
-                style={{
-                  fontFamily: "'Geist Mono', monospace",
-                  fontSize: 10,
-                  color: "var(--text-3)",
-                  textDecoration: "none",
-                  transition: "color 0.1s",
-                }}
-                onMouseOver={(e) => (e.target.style.color = "var(--text-1)")}
-                onMouseOut={(e) => (e.target.style.color = "var(--text-3)")}
-              >
-                create account
+                back to sign in
               </Link>
             </div>
           </div>
