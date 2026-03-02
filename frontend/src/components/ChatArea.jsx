@@ -251,91 +251,100 @@ export default function ChatArea({
           flex: 1,
           overflowY: "auto",
           overflowX: "hidden",
-          WebkitOverflowScrolling: "touch", // Smooth scrolling on iOS
-          padding: isMobile ? "8px 10px" : "12px 16px",
+          WebkitOverflowScrolling: "touch",
+          padding: isMobile ? "8px 10px" : "12px 20px", // Add padding on sides
           display: "flex",
           flexDirection: "column",
+          alignItems: "center", // Center the content
           gap: 4,
-          height: `calc(100% - ${headerHeight}px)`,
         }}
       >
-        {!chat ? (
-          <div
-            style={{
-              flex: 1,
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              justifyContent: "center",
-              gap: 8,
-              minHeight: "100%",
-            }}
-          >
-            <svg
-              width={isMobile ? "40" : "32"}
-              height={isMobile ? "40" : "32"}
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="var(--text-3)"
-              strokeWidth="1"
-            >
-              <path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z" />
-            </svg>
-            <p
+        <div
+          style={{
+            width: "100%",
+            maxWidth: isMobile ? "100%" : "800px", // Slightly wider // Nice readable width, not too wide
+            margin: "0 auto", // Center it
+            padding: isMobile ? "0" : "0 24px", // More padding on sides
+          }}
+        >
+          {!chat ? (
+            <div
               style={{
-                fontFamily: "'Geist Mono', monospace",
-                color: "var(--text-3)",
-                fontSize: isMobile ? 14 : 13,
-                textAlign: "center",
-                padding: "0 20px",
+                flex: 1,
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: 8,
+                minHeight: "100%",
               }}
             >
-              pick a collection or create one
-            </p>
-          </div>
-        ) : items.length === 0 ? (
-          <div
-            style={{
-              flex: 1,
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              justifyContent: "center",
-              gap: 6,
-              minHeight: "100%",
-            }}
-          >
-            <p
+              <svg
+                width={isMobile ? "40" : "32"}
+                height={isMobile ? "40" : "32"}
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="var(--text-3)"
+                strokeWidth="1"
+              >
+                <path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z" />
+              </svg>
+              <p
+                style={{
+                  fontFamily: "'Geist Mono', monospace",
+                  color: "var(--text-3)",
+                  fontSize: isMobile ? 14 : 13,
+                  textAlign: "center",
+                  padding: "0 20px",
+                }}
+              >
+                pick a collection or create one
+              </p>
+            </div>
+          ) : items.length === 0 ? (
+            <div
               style={{
-                fontFamily: "'Geist Mono', monospace",
-                color: "var(--text-3)",
-                fontSize: isMobile ? 14 : 13,
+                flex: 1,
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: 6,
+                minHeight: "100%",
               }}
             >
-              nothing stored yet
-            </p>
-            <p
-              style={{
-                fontFamily: "'Geist Mono', monospace",
-                color: "var(--text-3)",
-                fontSize: isMobile ? 12 : 11,
-                opacity: 0.5,
-              }}
-            >
-              drop files here or type below ↓
-            </p>
-          </div>
-        ) : (
-          items.map((item) => (
-            <MessageBubble
-              key={item.id}
-              item={item}
-              onDelete={onDeleteItem}
-              onEdit={onEditItem}
-            />
-          ))
-        )}
-        <div ref={bottomRef} style={{ height: 1, flexShrink: 0 }} />
+              <p
+                style={{
+                  fontFamily: "'Geist Mono', monospace",
+                  color: "var(--text-3)",
+                  fontSize: isMobile ? 14 : 13,
+                }}
+              >
+                nothing stored yet
+              </p>
+              <p
+                style={{
+                  fontFamily: "'Geist Mono', monospace",
+                  color: "var(--text-3)",
+                  fontSize: isMobile ? 12 : 11,
+                  opacity: 0.5,
+                }}
+              >
+                drop files here or type below ↓
+              </p>
+            </div>
+          ) : (
+            items.map((item) => (
+              <MessageBubble
+                key={item.id}
+                item={item}
+                onDelete={onDeleteItem}
+                onEdit={onEditItem}
+              />
+            ))
+          )}
+          <div ref={bottomRef} style={{ height: 1, flexShrink: 0 }} />
+        </div>
       </div>
 
       {/* INPUT — always visible when chat is selected */}

@@ -21,12 +21,12 @@ const TYPE_CONFIG = {
   },
 };
 
-const TypeIcon = ({ type }) => {
+const TypeIcon = ({ type, isMobile }) => {
   const icons = {
     note: (
       <svg
-        width="12"
-        height="12"
+        width={isMobile ? "14" : "12"} // Slightly larger
+        height={isMobile ? "14" : "12"}
         viewBox="0 0 24 24"
         fill="none"
         stroke="currentColor"
@@ -38,8 +38,8 @@ const TypeIcon = ({ type }) => {
     ),
     password: (
       <svg
-        width="12"
-        height="12"
+        width={isMobile ? "14" : "12"}
+        height={isMobile ? "14" : "12"}
         viewBox="0 0 24 24"
         fill="none"
         stroke="#4a90d9"
@@ -295,8 +295,8 @@ export default function MessageBubble({ item, onDelete, onEdit }) {
             display: "flex",
             flexDirection: isMobile ? "column" : "row",
             alignItems: isMobile ? "flex-start" : "center",
-            gap: 8,
-            marginTop: 6,
+            gap: 12,
+            marginTop: 8,
           }}
         >
           <a
@@ -305,7 +305,7 @@ export default function MessageBubble({ item, onDelete, onEdit }) {
             rel="noreferrer"
             style={{
               fontFamily: "'Geist Mono', monospace",
-              fontSize: isMobile ? 14 : 12,
+              fontSize: isMobile ? 15 : 14,
               color: "#6b9fff",
               wordBreak: "break-all",
               textDecoration: "none",
@@ -317,14 +317,17 @@ export default function MessageBubble({ item, onDelete, onEdit }) {
           <button
             onClick={() => handleCopy(item.content)}
             style={{
-              fontSize: 11,
+              fontSize: 12,
               fontFamily: "'Geist Mono', monospace",
               color: copied ? "#4caf50" : "var(--text-3)",
               background: "none",
               border: "none",
               cursor: "pointer",
               flexShrink: 0,
-              padding: isMobile ? "8px 0" : "0",
+              padding: isMobile ? "8px 0" : "4px 8px",
+              backgroundColor:
+                !isMobile && !copied ? "var(--bg-2)" : "transparent",
+              borderRadius: 4,
             }}
           >
             {copied ? "copied!" : "copy"}
@@ -487,46 +490,51 @@ export default function MessageBubble({ item, onDelete, onEdit }) {
     }
 
     // Notes
-    return (
-      <div
-        style={{
-          display: "flex",
-          flexDirection: isMobile ? "column" : "row",
-          alignItems: isMobile ? "flex-start" : "flex-start",
-          gap: 8,
-          marginTop: 6,
-        }}
-      >
-        <p
+    if (item.type === "note" && !editing) {
+      return (
+        <div
           style={{
-            fontSize: isMobile ? 14 : 13,
-            color: "var(--text-2)",
-            lineHeight: 1.6,
-            whiteSpace: "pre-wrap",
-            wordBreak: "break-word",
-            flex: 1,
+            display: "flex",
+            flexDirection: isMobile ? "column" : "row",
+            alignItems: isMobile ? "flex-start" : "flex-start",
+            gap: 12,
+            marginTop: 8,
           }}
         >
-          {item.content}
-        </p>
-        <button
-          onClick={() => handleCopy(item.content)}
-          style={{
-            fontSize: 11,
-            fontFamily: "'Geist Mono', monospace",
-            color: copied ? "#4caf50" : "var(--text-3)",
-            background: "none",
-            border: "none",
-            cursor: "pointer",
-            flexShrink: 0,
-            marginTop: 2,
-            padding: isMobile ? "8px 0" : "0",
-          }}
-        >
-          {copied ? "copied!" : "copy"}
-        </button>
-      </div>
-    );
+          <p
+            style={{
+              fontSize: isMobile ? 16 : 15,
+              color: "var(--text-2)",
+              lineHeight: 1.6,
+              whiteSpace: "pre-wrap",
+              wordBreak: "break-word",
+              flex: 1,
+            }}
+          >
+            {item.content}
+          </p>
+          <button
+            onClick={() => handleCopy(item.content)}
+            style={{
+              fontSize: 12,
+              fontFamily: "'Geist Mono', monospace",
+              color: copied ? "#4caf50" : "var(--text-3)",
+              background: "none",
+              border: "none",
+              cursor: "pointer",
+              flexShrink: 0,
+              // marginTop: 2,
+              padding: isMobile ? "8px 0" : "4px 8px",
+              backgroundColor:
+                !isMobile && !copied ? "var(--bg-2)" : "transparent",
+              borderRadius: 4,
+            }}
+          >
+            {copied ? "copied!" : "copy"}
+          </button>
+        </div>
+      );
+    }
   };
 
   return (
@@ -563,13 +571,13 @@ export default function MessageBubble({ item, onDelete, onEdit }) {
           >
             <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
               <span style={{ color: "var(--text-3)" }}>
-                <TypeIcon type={item.type} />
+                <TypeIcon type={item.type} isMobile={isMobile} />
               </span>
               <span
                 style={{
                   fontFamily: "'Geist Mono', monospace",
                   color: "var(--text-1)",
-                  fontSize: isMobile ? 14 : 13,
+                  fontSize: isMobile ? 16 : 15,
                   fontWeight: 500,
                 }}
               >
@@ -588,7 +596,7 @@ export default function MessageBubble({ item, onDelete, onEdit }) {
                 style={{
                   fontFamily: "'Geist Mono', monospace",
                   color: "var(--text-3)",
-                  fontSize: isMobile ? 12 : 11,
+                  fontSize: isMobile ? 13 : 12,
                 }}
               >
                 {formatTime(item.created_at)}

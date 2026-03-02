@@ -19,6 +19,7 @@ export default function InputBar({ onSend }) {
   const fileRef = useRef(null);
   const imageRef = useRef(null);
   const textareaRef = useRef(null);
+  const inputBarRef = useRef(null);
 
   useEffect(() => {
     const handleResize = () => {
@@ -27,6 +28,53 @@ export default function InputBar({ onSend }) {
 
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  // Handle paste events
+  useEffect(() => {
+    const handlePaste = async (e) => {
+      // Don't handle if we're not focused on the input bar
+      if (
+        !textareaRef.current?.contains(document.activeElement) &&
+        !inputBarRef.current?.contains(document.activeElement)
+      ) {
+        return;
+      }
+
+      const items = e.clipboardData?.items;
+      if (!items) return;
+
+      // Check for files in clipboard
+      for (let i = 0; i < items.length; i++) {
+        const item = items[i];
+
+        // Handle image paste
+        if (item.type.indexOf("image") !== -1) {
+          e.preventDefault();
+          const file = item.getAsFile();
+          if (file) {
+            await handleUpload(file);
+          }
+          return;
+        }
+
+        // Handle file paste
+        if (item.kind === "file") {
+          e.preventDefault();
+          const file = item.getAsFile();
+          if (file) {
+            await handleUpload(file);
+          }
+          return;
+        }
+      }
+
+      // Handle text paste - let the textarea handle it normally
+      // The text will be captured by the onChange event
+    };
+
+    document.addEventListener("paste", handlePaste);
+    return () => document.removeEventListener("paste", handlePaste);
   }, []);
 
   const handleSend = () => {
@@ -83,6 +131,7 @@ export default function InputBar({ onSend }) {
 
   return (
     <div
+      ref={inputBarRef}
       style={{
         padding: isMobile ? "8px 0 12px" : "10px 0 16px",
         flexShrink: 0,
@@ -96,8 +145,8 @@ export default function InputBar({ onSend }) {
           display: "flex",
           alignItems: "flex-end",
           gap: 5,
-          padding: isMobile ? "6px 8px" : "8px 10px",
-          width: isMobile ? "96%" : "min(680px, 90%)",
+          padding: isMobile ? "6px 8px" : "10px 12px", // More padding
+          width: isMobile ? "96%" : "min(720px, 80%)", // Slightly wider but not too wide
           position: "relative",
         }}
       >
@@ -299,7 +348,7 @@ export default function InputBar({ onSend }) {
             outline: "none",
             resize: "none",
             color: "var(--text-1)",
-            fontSize: isMobile ? 14 : 12, // Prevent zoom on iOS
+            fontSize: isMobile ? 16 : 15,
             fontFamily: isPassword
               ? "'Geist Mono', monospace"
               : "'Geist', sans-serif",

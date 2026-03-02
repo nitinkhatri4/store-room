@@ -162,16 +162,24 @@ export default function Home() {
       {/* Sidebar - always rendered but positioned differently on mobile */}
       <div
         style={{
-          width: isMobile() ? (sidebarOpen ? "260px" : "0px") : "220px",
+          width: isMobile()
+            ? sidebarOpen
+              ? "260px"
+              : "0px"
+            : sidebarOpen
+              ? "220px"
+              : "0px", // Collapse completely on desktop too
           height: "100%",
           backgroundColor: "var(--bg-1)",
-          borderRight: isMobile() ? "none" : "1px solid var(--border)",
+          borderRight:
+            !isMobile() && sidebarOpen ? "1px solid var(--border)" : "none",
           overflow: "hidden",
           transition: "width 0.3s ease",
           position: isMobile() ? "fixed" : "relative",
           left: 0,
           top: 0,
           zIndex: 1000,
+          flexShrink: 0,
           boxShadow:
             isMobile() && sidebarOpen ? "2px 0 10px rgba(0,0,0,0.3)" : "none",
         }}
@@ -193,9 +201,10 @@ export default function Home() {
         style={{
           flex: 1,
           height: "100%",
-          width: isMobile() ? "100%" : `calc(100% - 220px)`,
-          marginLeft: isMobile() ? 0 : sidebarOpen ? "220px" : 0,
-          transition: "margin-left 0.3s ease",
+          width: isMobile()
+            ? "100%"
+            : `calc(100% - ${sidebarOpen ? "220px" : "0px"})`,
+          transition: "width 0.3s ease",
         }}
       >
         <ChatArea
