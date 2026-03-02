@@ -4,7 +4,7 @@ require("dotenv").config();
 
 const app = express();
 
-app.use(cors({ origin: process.env.CLIENT_URL }));
+app.use(cors({ origin: true }));
 app.use(express.json());
 
 app.use("/api/auth", require("./routes/auth"));
@@ -16,4 +16,6 @@ app.use("/api/upload", require("./routes/upload"));
 app.get("/", (req, res) => res.send("Storeroom API running"));
 
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+app.listen(PORT, "0.0.0.0", () =>
+  console.log(`Server running on port ${PORT}`),
+);

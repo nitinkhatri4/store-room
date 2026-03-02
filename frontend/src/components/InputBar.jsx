@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import api from "../api";
 
 const isURL = (str) => {
@@ -15,9 +15,19 @@ export default function InputBar({ onSend }) {
   const [isPassword, setIsPassword] = useState(false);
   const [showAttach, setShowAttach] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
   const fileRef = useRef(null);
   const imageRef = useRef(null);
   const textareaRef = useRef(null);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   const handleSend = () => {
     const val = text.trim();
@@ -74,7 +84,7 @@ export default function InputBar({ onSend }) {
   return (
     <div
       style={{
-        padding: "10px 0 16px",
+        padding: isMobile ? "8px 0 12px" : "10px 0 16px",
         flexShrink: 0,
         display: "flex",
         justifyContent: "center",
@@ -86,19 +96,19 @@ export default function InputBar({ onSend }) {
           display: "flex",
           alignItems: "flex-end",
           gap: 5,
-          padding: "8px 10px",
-          width: "min(680px, 90%)",
+          padding: isMobile ? "6px 8px" : "8px 10px",
+          width: isMobile ? "96%" : "min(680px, 90%)",
           position: "relative",
         }}
       >
-        {/* Attach menu */}
+        {/* Attach menu - adjust position for mobile */}
         {showAttach && (
           <div
             className="pop-up"
             style={{
               position: "absolute",
               bottom: "100%",
-              left: 0,
+              left: isMobile ? 0 : 0,
               marginBottom: 6,
               background: "var(--bg-2)",
               border: "1px solid var(--border-hover)",
@@ -107,9 +117,11 @@ export default function InputBar({ onSend }) {
               display: "flex",
               flexDirection: "column",
               gap: 1,
-              minWidth: 160,
+              minWidth: isMobile ? 140 : 160,
+              zIndex: 100,
             }}
           >
+            {/* Attach options content */}
             {[
               {
                 label: "image",
@@ -159,7 +171,7 @@ export default function InputBar({ onSend }) {
                   display: "flex",
                   alignItems: "center",
                   gap: 10,
-                  padding: "7px 10px",
+                  padding: isMobile ? "10px 8px" : "7px 10px",
                   borderRadius: 4,
                   background: "transparent",
                   border: "none",
@@ -180,7 +192,7 @@ export default function InputBar({ onSend }) {
                   <p
                     style={{
                       color: "var(--text-1)",
-                      fontSize: 11,
+                      fontSize: isMobile ? 12 : 11,
                       fontFamily: "'Geist Mono', monospace",
                     }}
                   >
@@ -189,7 +201,7 @@ export default function InputBar({ onSend }) {
                   <p
                     style={{
                       color: "var(--text-3)",
-                      fontSize: 10,
+                      fontSize: isMobile ? 11 : 10,
                       marginTop: 1,
                     }}
                   >
@@ -206,13 +218,17 @@ export default function InputBar({ onSend }) {
           onClick={() => setShowAttach((p) => !p)}
           disabled={uploading}
           className={`icon-btn ${showAttach ? "active-state" : ""}`}
-          style={{ width: 28, height: 28, flexShrink: 0 }}
+          style={{
+            width: isMobile ? 36 : 28,
+            height: isMobile ? 36 : 28,
+            flexShrink: 0,
+          }}
           title="Attach"
         >
           {uploading ? (
             <svg
-              width="11"
-              height="11"
+              width="13"
+              height="13"
               viewBox="0 0 24 24"
               fill="none"
               stroke="currentColor"
@@ -223,8 +239,8 @@ export default function InputBar({ onSend }) {
             </svg>
           ) : (
             <svg
-              width="11"
-              height="11"
+              width="13"
+              height="13"
               viewBox="0 0 24 24"
               fill="none"
               stroke="currentColor"
@@ -244,12 +260,16 @@ export default function InputBar({ onSend }) {
         <button
           onClick={() => setIsPassword((p) => !p)}
           className={`icon-btn ${isPassword ? "active-state" : ""}`}
-          style={{ width: 28, height: 28, flexShrink: 0 }}
+          style={{
+            width: isMobile ? 36 : 28,
+            height: isMobile ? 36 : 28,
+            flexShrink: 0,
+          }}
           title="Mark as password"
         >
           <svg
-            width="11"
-            height="11"
+            width="13"
+            height="13"
             viewBox="0 0 24 24"
             fill="none"
             stroke="currentColor"
@@ -279,7 +299,7 @@ export default function InputBar({ onSend }) {
             outline: "none",
             resize: "none",
             color: "var(--text-1)",
-            fontSize: 12,
+            fontSize: isMobile ? 14 : 12, // Prevent zoom on iOS
             fontFamily: isPassword
               ? "'Geist Mono', monospace"
               : "'Geist', sans-serif",
@@ -299,12 +319,16 @@ export default function InputBar({ onSend }) {
           onClick={handleSend}
           disabled={!text.trim()}
           className={`icon-btn ${text.trim() ? "accent" : ""}`}
-          style={{ width: 28, height: 28, flexShrink: 0 }}
+          style={{
+            width: isMobile ? 36 : 28,
+            height: isMobile ? 36 : 28,
+            flexShrink: 0,
+          }}
           title="Send"
         >
           <svg
-            width="11"
-            height="11"
+            width="13"
+            height="13"
             viewBox="0 0 24 24"
             fill="none"
             stroke="currentColor"

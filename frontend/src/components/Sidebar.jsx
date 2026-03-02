@@ -37,12 +37,11 @@ export default function Sidebar({
     <div
       style={{
         background: "var(--bg-1)",
-        borderRight: "1px solid var(--border)",
-        width: 220,
-        flexShrink: 0,
+        width: "100%",
         height: "100%",
         display: "flex",
         flexDirection: "column",
+        overflow: "hidden",
       }}
     >
       {/* Header */}
@@ -53,6 +52,7 @@ export default function Sidebar({
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
+          flexShrink: 0,
         }}
       >
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
@@ -65,7 +65,6 @@ export default function Sidebar({
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              flexShrink: 0,
             }}
           >
             <svg
@@ -85,7 +84,6 @@ export default function Sidebar({
               fontSize: 13,
               fontWeight: 500,
               color: "var(--text-1)",
-              letterSpacing: "-0.02em",
             }}
           >
             storeroom
@@ -98,6 +96,7 @@ export default function Sidebar({
             navigate("/login");
           }}
           title="Logout"
+          style={{ flexShrink: 0 }}
         >
           <svg
             width="11"
@@ -106,7 +105,6 @@ export default function Sidebar({
             fill="none"
             stroke="currentColor"
             strokeWidth="2"
-            strokeLinecap="round"
           >
             <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
             <polyline points="16 17 21 12 16 7" />
@@ -116,7 +114,7 @@ export default function Sidebar({
       </div>
 
       {/* Search */}
-      <div style={{ padding: "10px 10px 6px" }}>
+      <div style={{ padding: "10px 10px 6px", flexShrink: 0 }}>
         <div
           style={{
             display: "flex",
@@ -146,19 +144,18 @@ export default function Sidebar({
             onChange={(e) => setSearch(e.target.value)}
             style={{
               background: "transparent",
+              border: "none",
               color: "var(--text-1)",
               outline: "none",
               fontSize: 13,
-              fontFamily: "'Geist', sans-serif",
-              flex: 1,
-              minWidth: 0,
+              width: "100%",
             }}
           />
         </div>
       </div>
 
       {/* New chat */}
-      <div style={{ padding: "4px 10px 8px" }}>
+      <div style={{ padding: "4px 10px 8px", flexShrink: 0 }}>
         {showInput ? (
           <form onSubmit={handleCreate} style={{ display: "flex", gap: 5 }}>
             <input
@@ -180,7 +177,6 @@ export default function Sidebar({
                 outline: "none",
                 fontSize: 13,
                 fontFamily: "'Geist Mono', monospace",
-                minWidth: 0,
               }}
             />
             <button
@@ -206,18 +202,6 @@ export default function Sidebar({
               color: "var(--text-3)",
               cursor: "pointer",
               fontSize: 13,
-              fontFamily: "'Geist', sans-serif",
-              transition: "all 0.1s ease",
-            }}
-            onMouseOver={(e) => {
-              e.currentTarget.style.borderColor = "var(--border-hover)";
-              e.currentTarget.style.color = "var(--text-1)";
-              e.currentTarget.style.background = "var(--bg-3)";
-            }}
-            onMouseOut={(e) => {
-              e.currentTarget.style.borderColor = "var(--border)";
-              e.currentTarget.style.color = "var(--text-3)";
-              e.currentTarget.style.background = "transparent";
             }}
           >
             <svg
@@ -236,8 +220,8 @@ export default function Sidebar({
         )}
       </div>
 
-      {/* Section label */}
-      <div style={{ padding: "4px 12px 4px" }}>
+      {/* Collections label */}
+      <div style={{ padding: "4px 12px 4px", flexShrink: 0 }}>
         <span
           style={{
             fontFamily: "'Geist Mono', monospace",
@@ -251,168 +235,15 @@ export default function Sidebar({
         </span>
       </div>
 
-      {/* Chat list */}
+      {/* Chat list - scrollable */}
       <div
         style={{
           flex: 1,
           overflowY: "auto",
           padding: "2px 6px 12px",
-          display: "flex",
-          flexDirection: "column",
-          gap: 1,
         }}
       >
-        {filtered.map((chat) => (
-          <div
-            key={chat.id}
-            onClick={() => onSelectChat(chat)}
-            className={`chat-item ${activeChat?.id === chat.id ? "active" : ""}`}
-          >
-            <div
-              style={{
-                width: 5,
-                height: 5,
-                borderRadius: "50%",
-                background:
-                  activeChat?.id === chat.id
-                    ? "var(--text-1)"
-                    : "var(--text-3)",
-                flexShrink: 0,
-                marginRight: 8,
-                transition: "background 0.15s",
-              }}
-            />
-
-            {renamingId === chat.id ? (
-              <input
-                autoFocus
-                value={renameVal}
-                onChange={(e) => setRenameVal(e.target.value)}
-                onBlur={() => submitRename(chat.id)}
-                onKeyDown={(e) => e.key === "Enter" && submitRename(chat.id)}
-                onClick={(e) => e.stopPropagation()}
-                style={{
-                  background: "transparent",
-                  outline: "none",
-                  color: "var(--text-1)",
-                  fontSize: 13,
-                  fontFamily: "'Geist Mono', monospace",
-                  flex: 1,
-                  minWidth: 0,
-                }}
-              />
-            ) : (
-              <span
-                style={{
-                  fontSize: 13,
-                  fontFamily: "'Geist Mono', monospace",
-                  color:
-                    activeChat?.id === chat.id
-                      ? "var(--text-1)"
-                      : "var(--text-2)",
-                  flex: 1,
-                  minWidth: 0,
-                  overflow: "hidden",
-                  textOverflow: "ellipsis",
-                  whiteSpace: "nowrap",
-                  paddingRight: 36,
-                }}
-              >
-                {chat.name}
-              </span>
-            )}
-
-            <span
-              style={{
-                fontSize: 10,
-                fontFamily: "'Geist Mono', monospace",
-                color: "var(--text-3)",
-                marginRight: 28,
-                flexShrink: 0,
-              }}
-            >
-              {chat.item_count || ""}
-            </span>
-
-            <div className="chat-item-actions">
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setRenamingId(chat.id);
-                  setRenameVal(chat.name);
-                }}
-                style={{
-                  width: 22,
-                  height: 22,
-                  borderRadius: 3,
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  background: "transparent",
-                  border: "none",
-                  color: "var(--text-3)",
-                  cursor: "pointer",
-                }}
-                onMouseOver={(e) =>
-                  (e.currentTarget.style.color = "var(--text-1)")
-                }
-                onMouseOut={(e) =>
-                  (e.currentTarget.style.color = "var(--text-3)")
-                }
-              >
-                <svg
-                  width="11"
-                  height="11"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                >
-                  <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
-                  <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
-                </svg>
-              </button>
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onDeleteChat(chat.id);
-                }}
-                style={{
-                  width: 22,
-                  height: 22,
-                  borderRadius: 3,
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  background: "transparent",
-                  border: "none",
-                  color: "var(--text-3)",
-                  cursor: "pointer",
-                }}
-                onMouseOver={(e) =>
-                  (e.currentTarget.style.color = "var(--danger)")
-                }
-                onMouseOut={(e) =>
-                  (e.currentTarget.style.color = "var(--text-3)")
-                }
-              >
-                <svg
-                  width="11"
-                  height="11"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                >
-                  <polyline points="3 6 5 6 21 6" />
-                  <path d="M19 6l-1 14H6L5 6" />
-                  <path d="M9 6V4h6v2" />
-                </svg>
-              </button>
-            </div>
-          </div>
-        ))}
-        {filtered.length === 0 && (
+        {filtered.length === 0 ? (
           <p
             style={{
               color: "var(--text-3)",
@@ -424,6 +255,160 @@ export default function Sidebar({
           >
             no collections yet
           </p>
+        ) : (
+          filtered.map((chat) => (
+            <div
+              key={chat.id}
+              onClick={() => onSelectChat(chat)}
+              className={`chat-item ${activeChat?.id === chat.id ? "active" : ""}`}
+              style={{
+                position: "relative",
+                display: "flex",
+                alignItems: "center",
+                padding: "7px 8px",
+                borderRadius: 4,
+                cursor: "pointer",
+                backgroundColor:
+                  activeChat?.id === chat.id ? "var(--bg-3)" : "transparent",
+              }}
+            >
+              <div
+                style={{
+                  width: 5,
+                  height: 5,
+                  borderRadius: "50%",
+                  backgroundColor:
+                    activeChat?.id === chat.id
+                      ? "var(--text-1)"
+                      : "var(--text-3)",
+                  marginRight: 8,
+                  flexShrink: 0,
+                }}
+              />
+
+              {renamingId === chat.id ? (
+                <input
+                  autoFocus
+                  value={renameVal}
+                  onChange={(e) => setRenameVal(e.target.value)}
+                  onBlur={() => submitRename(chat.id)}
+                  onKeyDown={(e) => e.key === "Enter" && submitRename(chat.id)}
+                  onClick={(e) => e.stopPropagation()}
+                  style={{
+                    background: "transparent",
+                    border: "none",
+                    outline: "none",
+                    color: "var(--text-1)",
+                    fontSize: 13,
+                    fontFamily: "'Geist Mono', monospace",
+                    flex: 1,
+                  }}
+                />
+              ) : (
+                <>
+                  <span
+                    style={{
+                      fontSize: 13,
+                      fontFamily: "'Geist Mono', monospace",
+                      color:
+                        activeChat?.id === chat.id
+                          ? "var(--text-1)"
+                          : "var(--text-2)",
+                      flex: 1,
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                      whiteSpace: "nowrap",
+                    }}
+                  >
+                    {chat.name}
+                  </span>
+                  <span
+                    style={{
+                      fontSize: 10,
+                      fontFamily: "'Geist Mono', monospace",
+                      color: "var(--text-3)",
+                      marginRight: 4,
+                      flexShrink: 0,
+                    }}
+                  >
+                    {chat.item_count || ""}
+                  </span>
+                </>
+              )}
+
+              {/* Actions */}
+              {!renamingId && (
+                <div
+                  className="chat-item-actions"
+                  style={{
+                    display: "none",
+                    position: "absolute",
+                    right: 6,
+                    top: "50%",
+                    transform: "translateY(-50%)",
+                    alignItems: "center",
+                    gap: 2,
+                    background: "var(--bg-4)",
+                    borderRadius: 4,
+                    padding: 2,
+                  }}
+                >
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setRenamingId(chat.id);
+                      setRenameVal(chat.name);
+                    }}
+                    className="icon-btn"
+                    style={{ width: 22, height: 22 }}
+                  >
+                    <svg
+                      width="11"
+                      height="11"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                    >
+                      <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+                      <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+                    </svg>
+                  </button>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation(); // Prevent triggering the parent onClick
+                      e.preventDefault();
+                      console.log(
+                        "Delete clicked for chat:",
+                        chat.id,
+                        chat.name,
+                      ); // Add for debugging
+                      if (window.confirm(`Delete "${chat.name}"?`)) {
+                        onDeleteChat(chat.id);
+                      }
+                    }}
+                    className="icon-btn danger"
+                    style={{ width: 22, height: 22 }}
+                    title="Delete chat"
+                  >
+                    <svg
+                      width="11"
+                      height="11"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                    >
+                      <polyline points="3 6 5 6 21 6" />
+                      <path d="M19 6l-1 14H6L5 6" />
+                      <path d="M10 9v5" />
+                      <path d="M14 9v5" />
+                    </svg>
+                  </button>
+                </div>
+              )}
+            </div>
+          ))
         )}
       </div>
     </div>

@@ -56,24 +56,31 @@ router.put("/:id", authMiddleware, async (req, res) => {
 // Delete a chat and its items
 router.delete("/:id", authMiddleware, async (req, res) => {
   try {
+    const chatId = req.params.id;
+    const userId = req.user.id;
+
     const [chat] = await db.query(
       "SELECT * FROM chats WHERE id = ? AND user_id = ?",
-      [req.params.id, req.user.id],
+      [chatId, userId],
     );
-    if (chat.length === 0)
-      return res.status(403).json({ message: "Not authorized" });
 
-    const [items] = await db.query("SELECT id FROM items WHERE chat_id = ?", [
-      req.params.id,
-    ]);
-    for (let item of items) {
-      await db.query("DELETE FROM item_tags WHERE item_id = ?", [item.id]);
+    if (chat.length === 0) {
+      return res.status(403).json({ message: "Not authorized" });
     }
-    await db.query("DELETE FROM items WHERE chat_id = ?", [req.params.id]);
-    await db.query("DELETE FROM chats WHERE id = ?", [req.params.id]);
-    res.json({ message: "Deleted" });
+
+    await db.query("DELETE FROM items WHERE chat_id = ?", [chatId]);
+
+    await db.query("DELETE FROM chats WHERE id = ?", [chatId]);
+
+    res.json({
+      success: true,
+      message: "Chat deleted successfully",
+    });
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    res.status(500).json({
+      success: false,
+      message: err.message,
+    });
   }
 });
 

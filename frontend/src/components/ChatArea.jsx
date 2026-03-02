@@ -16,9 +16,31 @@ export default function ChatArea({
   const [dragging, setDragging] = useState(false);
   const [uploading, setUploading] = useState(false);
   const dragCounter = useRef(0);
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+  const headerRef = useRef(null);
+  const [headerHeight, setHeaderHeight] = useState(48);
 
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+    const handleResize = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  useEffect(() => {
+    // Measure header height after render
+    if (headerRef.current) {
+      setHeaderHeight(headerRef.current.offsetHeight);
+    }
+  }, [isMobile]);
+
+  useEffect(() => {
+    // Use setTimeout to ensure scroll happens after render
+    setTimeout(() => {
+      bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+    }, 100);
   }, [items]);
 
   const handleDragEnter = (e) => {
@@ -69,15 +91,14 @@ export default function ChatArea({
       onDragOver={handleDragOver}
       onDrop={handleDrop}
       style={{
-        flex: 1,
         display: "flex",
         flexDirection: "column",
         height: "100%",
-        minWidth: 0,
-        position: "relative",
-        overflow: "hidden",
+        width: "100%",
         background: dragging ? "var(--bg-1)" : "var(--bg-0)",
         transition: "background 0.15s",
+        position: "relative",
+        overflow: "hidden", // Prevent scrolling at container level
       }}
     >
       {dragging && (
@@ -97,18 +118,6 @@ export default function ChatArea({
             pointerEvents: "none",
           }}
         >
-          <svg
-            width="24"
-            height="24"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="var(--text-3)"
-            strokeWidth="1.5"
-          >
-            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-            <polyline points="17 8 12 3 7 8" />
-            <line x1="12" y1="3" x2="12" y2="15" />
-          </svg>
           <p
             style={{
               color: "var(--text-2)",
@@ -125,7 +134,7 @@ export default function ChatArea({
         <div
           style={{
             position: "absolute",
-            top: 10,
+            top: 60,
             right: 12,
             zIndex: 40,
             background: "var(--bg-2)",
@@ -137,17 +146,6 @@ export default function ChatArea({
             gap: 7,
           }}
         >
-          <svg
-            width="11"
-            height="11"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="var(--text-2)"
-            strokeWidth="2"
-            style={{ animation: "spin 1s linear infinite" }}
-          >
-            <path d="M21 12a9 9 0 1 1-6.219-8.56" />
-          </svg>
           <span
             style={{
               fontSize: 12,
@@ -160,22 +158,38 @@ export default function ChatArea({
         </div>
       )}
 
-      {/* Header */}
+      {/* HEADER with ref to measure height */}
       <div
+        ref={headerRef}
         style={{
           background: "var(--bg-0)",
           borderBottom: "1px solid var(--border)",
-          padding: "10px 16px 10px 12px",
+          padding: isMobile ? "0 12px" : "0 16px",
           display: "flex",
           alignItems: "center",
-          gap: 10,
+          gap: isMobile ? 8 : 10,
+          height: 48,
+          minHeight: 48, // Force minimum height
           flexShrink: 0,
+          zIndex: 10,
+          width: "100%",
         }}
       >
-        <button className="icon-btn" onClick={onToggleSidebar}>
+        <button
+          className="icon-btn"
+          onClick={onToggleSidebar}
+          style={{
+            width: isMobile ? 36 : 28,
+            height: isMobile ? 36 : 28,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            flexShrink: 0,
+          }}
+        >
           <svg
-            width="13"
-            height="13"
+            width={isMobile ? "16" : "13"}
+            height={isMobile ? "16" : "13"}
             viewBox="0 0 24 24"
             fill="none"
             stroke="currentColor"
@@ -187,15 +201,20 @@ export default function ChatArea({
             <line x1="3" y1="18" x2="21" y2="18" />
           </svg>
         </button>
+
         {chat ? (
           <>
             <span
               style={{
                 fontFamily: "'Geist Mono', monospace",
-                fontSize: 14,
+                fontSize: isMobile ? 15 : 14,
                 fontWeight: 500,
                 color: "var(--text-1)",
                 letterSpacing: "-0.02em",
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+                whiteSpace: "nowrap",
+                flex: 1,
               }}
             >
               {chat.name}
@@ -203,20 +222,22 @@ export default function ChatArea({
             <span
               style={{
                 fontFamily: "'Geist Mono', monospace",
-                fontSize: 11,
+                fontSize: isMobile ? 12 : 11,
                 color: "var(--text-3)",
                 marginLeft: 2,
+                flexShrink: 0,
               }}
             >
-              {items.length} items
+              {items.length} {items.length === 1 ? "item" : "items"}
             </span>
           </>
         ) : (
           <span
             style={{
               fontFamily: "'Geist Mono', monospace",
-              fontSize: 13,
+              fontSize: isMobile ? 15 : 13,
               color: "var(--text-3)",
+              flex: 1,
             }}
           >
             select a collection
@@ -224,96 +245,106 @@ export default function ChatArea({
         )}
       </div>
 
-      {!chat ? (
-        <div
-          style={{
-            flex: 1,
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            justifyContent: "center",
-            gap: 8,
-          }}
-        >
-          <svg
-            width="32"
-            height="32"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="var(--text-3)"
-            strokeWidth="1"
-          >
-            <path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z" />
-          </svg>
-          <p
-            style={{
-              fontFamily: "'Geist Mono', monospace",
-              color: "var(--text-3)",
-              fontSize: 13,
-            }}
-          >
-            pick a collection or create one
-          </p>
-        </div>
-      ) : (
-        <>
+      {/* Scrollable content area with calculated height */}
+      <div
+        style={{
+          flex: 1,
+          overflowY: "auto",
+          overflowX: "hidden",
+          WebkitOverflowScrolling: "touch", // Smooth scrolling on iOS
+          padding: isMobile ? "8px 10px" : "12px 16px",
+          display: "flex",
+          flexDirection: "column",
+          gap: 4,
+          height: `calc(100% - ${headerHeight}px)`,
+        }}
+      >
+        {!chat ? (
           <div
             style={{
               flex: 1,
-              overflowY: "auto",
-              padding: "12px 20px",
               display: "flex",
               flexDirection: "column",
-              gap: 4,
+              alignItems: "center",
+              justifyContent: "center",
+              gap: 8,
+              minHeight: "100%",
             }}
           >
-            {items.length === 0 ? (
-              <div
-                style={{
-                  flex: 1,
-                  display: "flex",
-                  flexDirection: "column",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  marginTop: 80,
-                  gap: 6,
-                }}
-              >
-                <p
-                  style={{
-                    fontFamily: "'Geist Mono', monospace",
-                    color: "var(--text-3)",
-                    fontSize: 13,
-                  }}
-                >
-                  nothing stored yet
-                </p>
-                <p
-                  style={{
-                    fontFamily: "'Geist Mono', monospace",
-                    color: "var(--text-3)",
-                    fontSize: 11,
-                    opacity: 0.5,
-                  }}
-                >
-                  drop files here or type below ↓
-                </p>
-              </div>
-            ) : (
-              items.map((item) => (
-                <MessageBubble
-                  key={item.id}
-                  item={item}
-                  onDelete={onDeleteItem}
-                  onEdit={onEditItem}
-                />
-              ))
-            )}
-            <div ref={bottomRef} />
+            <svg
+              width={isMobile ? "40" : "32"}
+              height={isMobile ? "40" : "32"}
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="var(--text-3)"
+              strokeWidth="1"
+            >
+              <path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z" />
+            </svg>
+            <p
+              style={{
+                fontFamily: "'Geist Mono', monospace",
+                color: "var(--text-3)",
+                fontSize: isMobile ? 14 : 13,
+                textAlign: "center",
+                padding: "0 20px",
+              }}
+            >
+              pick a collection or create one
+            </p>
           </div>
+        ) : items.length === 0 ? (
+          <div
+            style={{
+              flex: 1,
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: 6,
+              minHeight: "100%",
+            }}
+          >
+            <p
+              style={{
+                fontFamily: "'Geist Mono', monospace",
+                color: "var(--text-3)",
+                fontSize: isMobile ? 14 : 13,
+              }}
+            >
+              nothing stored yet
+            </p>
+            <p
+              style={{
+                fontFamily: "'Geist Mono', monospace",
+                color: "var(--text-3)",
+                fontSize: isMobile ? 12 : 11,
+                opacity: 0.5,
+              }}
+            >
+              drop files here or type below ↓
+            </p>
+          </div>
+        ) : (
+          items.map((item) => (
+            <MessageBubble
+              key={item.id}
+              item={item}
+              onDelete={onDeleteItem}
+              onEdit={onEditItem}
+            />
+          ))
+        )}
+        <div ref={bottomRef} style={{ height: 1, flexShrink: 0 }} />
+      </div>
+
+      {/* INPUT — always visible when chat is selected */}
+      {chat && (
+        <div style={{ flexShrink: 0 }}>
           <InputBar onSend={onSendItem} />
-        </>
+        </div>
       )}
+
       <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
     </div>
   );

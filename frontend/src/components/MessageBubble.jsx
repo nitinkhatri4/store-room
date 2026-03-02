@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Lightbox from "./Lightbox";
 
 const TYPE_CONFIG = {
@@ -98,8 +98,40 @@ export default function MessageBubble({ item, onDelete, onEdit }) {
   const [editing, setEditing] = useState(false);
   const [editContent, setEditContent] = useState(item.content);
   const [lightboxSrc, setLightboxSrc] = useState(null);
+  const [copied, setCopied] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    setIsMobile(window.innerWidth <= 768);
+  }, []);
 
   const cfg = TYPE_CONFIG[item.type] || TYPE_CONFIG.note;
+
+  const handleCopy = async (text) => {
+    try {
+      // Try the modern clipboard API first
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        await navigator.clipboard.writeText(text);
+      } else {
+        // Fallback for older mobile browsers
+        const textarea = document.createElement("textarea");
+        textarea.value = text;
+        textarea.style.position = "fixed";
+        textarea.style.opacity = "0";
+        document.body.appendChild(textarea);
+        textarea.select();
+        textarea.setSelectionRange(0, 99999);
+        document.execCommand("copy");
+        document.body.removeChild(textarea);
+      }
+
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1500);
+    } catch (err) {
+      console.error("Copy failed:", err);
+      alert("Failed to copy. Please select and copy manually.");
+    }
+  };
 
   const handleSave = () => {
     onEdit(item.id, { title: item.title, content: editContent });
@@ -138,7 +170,8 @@ export default function MessageBubble({ item, onDelete, onEdit }) {
         <div
           style={{
             display: "flex",
-            alignItems: "center",
+            flexDirection: isMobile ? "column" : "row",
+            alignItems: isMobile ? "flex-start" : "center",
             gap: 10,
             marginTop: 6,
           }}
@@ -149,30 +182,16 @@ export default function MessageBubble({ item, onDelete, onEdit }) {
               fontSize: 13,
               color: revealed ? "var(--text-1)" : "var(--text-3)",
               letterSpacing: revealed ? "normal" : "0.1em",
+              wordBreak: "break-all",
             }}
           >
             {revealed
               ? item.content
               : "•".repeat(Math.min(item.content?.length || 10, 14))}
           </span>
-          <button
-            onClick={() => setRevealed(!revealed)}
-            style={{
-              fontSize: 11,
-              fontFamily: "'Geist Mono', monospace",
-              color: "var(--text-3)",
-              background: "none",
-              border: "none",
-              cursor: "pointer",
-            }}
-            onMouseOver={(e) => (e.target.style.color = "var(--text-1)")}
-            onMouseOut={(e) => (e.target.style.color = "var(--text-3)")}
-          >
-            {revealed ? "hide" : "reveal"}
-          </button>
-          {revealed && (
+          <div style={{ display: "flex", gap: 10 }}>
             <button
-              onClick={() => navigator.clipboard.writeText(item.content)}
+              onClick={() => setRevealed(!revealed)}
               style={{
                 fontSize: 11,
                 fontFamily: "'Geist Mono', monospace",
@@ -180,13 +199,28 @@ export default function MessageBubble({ item, onDelete, onEdit }) {
                 background: "none",
                 border: "none",
                 cursor: "pointer",
+                padding: isMobile ? "8px 0" : "0",
               }}
-              onMouseOver={(e) => (e.target.style.color = "var(--text-1)")}
-              onMouseOut={(e) => (e.target.style.color = "var(--text-3)")}
             >
-              copy
+              {revealed ? "hide" : "reveal"}
             </button>
-          )}
+            {revealed && (
+              <button
+                onClick={() => handleCopy(item.content)}
+                style={{
+                  fontSize: 11,
+                  fontFamily: "'Geist Mono', monospace",
+                  color: copied ? "#4caf50" : "var(--text-3)",
+                  background: "none",
+                  border: "none",
+                  cursor: "pointer",
+                  padding: isMobile ? "8px 0" : "0",
+                }}
+              >
+                {copied ? "copied!" : "copy"}
+              </button>
+            )}
+          </div>
         </div>
       );
     }
@@ -210,7 +244,6 @@ export default function MessageBubble({ item, onDelete, onEdit }) {
               objectFit: "cover",
               cursor: "zoom-in",
               display: "block",
-              transition: "opacity 0.1s",
             }}
             onClick={() =>
               setLightboxSrc({
@@ -218,8 +251,6 @@ export default function MessageBubble({ item, onDelete, onEdit }) {
                 name: item.file_name || item.title,
               })
             }
-            onMouseOver={(e) => (e.target.style.opacity = "0.85")}
-            onMouseOut={(e) => (e.target.style.opacity = "1")}
           />
           <button
             onClick={handleDownload}
@@ -227,8 +258,8 @@ export default function MessageBubble({ item, onDelete, onEdit }) {
               position: "absolute",
               bottom: 8,
               right: 8,
-              width: 28,
-              height: 28,
+              width: 36,
+              height: 36,
               borderRadius: 4,
               background: "rgba(0,0,0,0.6)",
               border: "1px solid rgba(255,255,255,0.15)",
@@ -239,16 +270,10 @@ export default function MessageBubble({ item, onDelete, onEdit }) {
               cursor: "pointer",
               backdropFilter: "blur(4px)",
             }}
-            onMouseOver={(e) =>
-              (e.currentTarget.style.background = "rgba(0,0,0,0.85)")
-            }
-            onMouseOut={(e) =>
-              (e.currentTarget.style.background = "rgba(0,0,0,0.6)")
-            }
           >
             <svg
-              width="12"
-              height="12"
+              width="14"
+              height="14"
               viewBox="0 0 24 24"
               fill="none"
               stroke="currentColor"
@@ -265,24 +290,46 @@ export default function MessageBubble({ item, onDelete, onEdit }) {
 
     if (item.type === "link") {
       return (
-        <a
-          href={item.content}
-          target="_blank"
-          rel="noreferrer"
+        <div
           style={{
-            fontFamily: "'Geist Mono', monospace",
-            fontSize: 12,
-            color: "#6b9fff",
-            display: "block",
+            display: "flex",
+            flexDirection: isMobile ? "column" : "row",
+            alignItems: isMobile ? "flex-start" : "center",
+            gap: 8,
             marginTop: 6,
-            wordBreak: "break-all",
-            textDecoration: "none",
           }}
-          onMouseOver={(e) => (e.target.style.opacity = "0.7")}
-          onMouseOut={(e) => (e.target.style.opacity = "1")}
         >
-          {item.content}
-        </a>
+          <a
+            href={item.content}
+            target="_blank"
+            rel="noreferrer"
+            style={{
+              fontFamily: "'Geist Mono', monospace",
+              fontSize: isMobile ? 14 : 12,
+              color: "#6b9fff",
+              wordBreak: "break-all",
+              textDecoration: "none",
+              flex: 1,
+            }}
+          >
+            {item.content}
+          </a>
+          <button
+            onClick={() => handleCopy(item.content)}
+            style={{
+              fontSize: 11,
+              fontFamily: "'Geist Mono', monospace",
+              color: copied ? "#4caf50" : "var(--text-3)",
+              background: "none",
+              border: "none",
+              cursor: "pointer",
+              flexShrink: 0,
+              padding: isMobile ? "8px 0" : "0",
+            }}
+          >
+            {copied ? "copied!" : "copy"}
+          </button>
+        </div>
       );
     }
 
@@ -332,8 +379,6 @@ export default function MessageBubble({ item, onDelete, onEdit }) {
               display: "flex",
               alignItems: "center",
             }}
-            onMouseOver={(e) => (e.currentTarget.style.color = "var(--text-1)")}
-            onMouseOut={(e) => (e.currentTarget.style.color = "var(--text-3)")}
           >
             <svg
               width="13"
@@ -359,8 +404,6 @@ export default function MessageBubble({ item, onDelete, onEdit }) {
               cursor: "pointer",
               padding: 0,
             }}
-            onMouseOver={(e) => (e.currentTarget.style.color = "var(--text-1)")}
-            onMouseOut={(e) => (e.currentTarget.style.color = "var(--text-3)")}
           >
             <svg
               width="13"
@@ -402,7 +445,7 @@ export default function MessageBubble({ item, onDelete, onEdit }) {
               color: "var(--text-1)",
               outline: "none",
               resize: "none",
-              fontSize: 13,
+              fontSize: isMobile ? 16 : 13,
               fontFamily: "'Geist', sans-serif",
               width: "100%",
             }}
@@ -415,8 +458,8 @@ export default function MessageBubble({ item, onDelete, onEdit }) {
                 color: "#080909",
                 border: "none",
                 borderRadius: 3,
-                padding: "4px 10px",
-                fontSize: 11,
+                padding: "8px 12px",
+                fontSize: 12,
                 fontWeight: 600,
                 cursor: "pointer",
                 fontFamily: "'Geist Mono', monospace",
@@ -430,9 +473,10 @@ export default function MessageBubble({ item, onDelete, onEdit }) {
                 background: "none",
                 border: "none",
                 color: "var(--text-3)",
-                fontSize: 11,
+                fontSize: 12,
                 cursor: "pointer",
                 fontFamily: "'Geist Mono', monospace",
+                padding: "8px 12px",
               }}
             >
               cancel
@@ -442,19 +486,46 @@ export default function MessageBubble({ item, onDelete, onEdit }) {
       );
     }
 
+    // Notes
     return (
-      <p
+      <div
         style={{
-          fontSize: 13,
-          color: "var(--text-2)",
+          display: "flex",
+          flexDirection: isMobile ? "column" : "row",
+          alignItems: isMobile ? "flex-start" : "flex-start",
+          gap: 8,
           marginTop: 6,
-          lineHeight: 1.6,
-          whiteSpace: "pre-wrap",
-          wordBreak: "break-word",
         }}
       >
-        {item.content}
-      </p>
+        <p
+          style={{
+            fontSize: isMobile ? 14 : 13,
+            color: "var(--text-2)",
+            lineHeight: 1.6,
+            whiteSpace: "pre-wrap",
+            wordBreak: "break-word",
+            flex: 1,
+          }}
+        >
+          {item.content}
+        </p>
+        <button
+          onClick={() => handleCopy(item.content)}
+          style={{
+            fontSize: 11,
+            fontFamily: "'Geist Mono', monospace",
+            color: copied ? "#4caf50" : "var(--text-3)",
+            background: "none",
+            border: "none",
+            cursor: "pointer",
+            flexShrink: 0,
+            marginTop: 2,
+            padding: isMobile ? "8px 0" : "0",
+          }}
+        >
+          {copied ? "copied!" : "copy"}
+        </button>
+      </div>
     );
   };
 
@@ -476,13 +547,10 @@ export default function MessageBubble({ item, onDelete, onEdit }) {
             background: cfg.bg,
             border: `1px solid ${cfg.border}`,
             borderRadius: "12px 3px 12px 12px",
-            padding: "10px 12px",
+            padding: "12px",
             width: "fit-content",
-            maxWidth: "min(520px, 90%)",
-            transition: "opacity 0.1s",
+            maxWidth: "min(520px, 95%)",
           }}
-          onMouseOver={(e) => (e.currentTarget.style.opacity = "0.9")}
-          onMouseOut={(e) => (e.currentTarget.style.opacity = "1")}
         >
           <div
             style={{
@@ -490,6 +558,7 @@ export default function MessageBubble({ item, onDelete, onEdit }) {
               alignItems: "center",
               justifyContent: "space-between",
               gap: 12,
+              flexWrap: "wrap",
             }}
           >
             <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
@@ -500,7 +569,7 @@ export default function MessageBubble({ item, onDelete, onEdit }) {
                 style={{
                   fontFamily: "'Geist Mono', monospace",
                   color: "var(--text-1)",
-                  fontSize: 13,
+                  fontSize: isMobile ? 14 : 13,
                   fontWeight: 500,
                 }}
               >
@@ -511,7 +580,7 @@ export default function MessageBubble({ item, onDelete, onEdit }) {
               style={{
                 display: "flex",
                 alignItems: "center",
-                gap: 6,
+                gap: 8,
                 flexShrink: 0,
               }}
             >
@@ -519,7 +588,7 @@ export default function MessageBubble({ item, onDelete, onEdit }) {
                 style={{
                   fontFamily: "'Geist Mono', monospace",
                   color: "var(--text-3)",
-                  fontSize: 11,
+                  fontSize: isMobile ? 12 : 11,
                 }}
               >
                 {formatTime(item.created_at)}
@@ -528,15 +597,14 @@ export default function MessageBubble({ item, onDelete, onEdit }) {
                 <button
                   onClick={() => setEditing(true)}
                   style={{
-                    fontSize: 11,
+                    fontSize: isMobile ? 12 : 11,
                     fontFamily: "'Geist Mono', monospace",
                     color: "var(--text-3)",
                     background: "none",
                     border: "none",
                     cursor: "pointer",
+                    padding: isMobile ? "4px" : "0",
                   }}
-                  onMouseOver={(e) => (e.target.style.color = "var(--text-1)")}
-                  onMouseOut={(e) => (e.target.style.color = "var(--text-3)")}
                 >
                   edit
                 </button>
@@ -550,17 +618,12 @@ export default function MessageBubble({ item, onDelete, onEdit }) {
                   color: "var(--text-3)",
                   display: "flex",
                   alignItems: "center",
+                  padding: isMobile ? "4px" : "0",
                 }}
-                onMouseOver={(e) =>
-                  (e.currentTarget.style.color = "var(--danger)")
-                }
-                onMouseOut={(e) =>
-                  (e.currentTarget.style.color = "var(--text-3)")
-                }
               >
                 <svg
-                  width="11"
-                  height="11"
+                  width={isMobile ? "13" : "11"}
+                  height={isMobile ? "13" : "11"}
                   viewBox="0 0 24 24"
                   fill="none"
                   stroke="currentColor"

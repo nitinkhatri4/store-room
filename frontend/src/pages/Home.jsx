@@ -11,20 +11,36 @@ export default function Home() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const { chatName } = useParams();
   const navigate = useNavigate();
-  const isMobile = window.innerWidth < 1024;
+
+  const isMobile = () => window.innerWidth < 768;
 
   useEffect(() => {
     fetchChats();
-    // open sidebar by default only on desktop
-    if (window.innerWidth >= 768) setSidebarOpen(true);
+  }, []);
+
+  // Handle initial sidebar state
+  useEffect(() => {
+    if (!isMobile()) {
+      setSidebarOpen(true);
+    }
+  }, []);
+
+  // Handle resize
+  useEffect(() => {
+    const handleResize = () => {
+      if (!isMobile()) {
+        setSidebarOpen(true);
+      }
+    };
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
   }, []);
 
   useEffect(() => {
     if (activeChat) {
       fetchItems(activeChat.id);
       navigate(`/${encodeURIComponent(activeChat.name)}`);
-    } else {
-      setItems([]);
     }
   }, [activeChat]);
 
@@ -34,7 +50,9 @@ export default function Home() {
         (c) =>
           c.name.toLowerCase() === decodeURIComponent(chatName).toLowerCase(),
       );
-      if (found) setActiveChat(found);
+      if (found) {
+        setActiveChat(found);
+      }
     }
   }, [chatName, chats]);
 
@@ -52,23 +70,46 @@ export default function Home() {
     const res = await api.post("/chats", { name });
     setChats((prev) => [res.data, ...prev]);
     setActiveChat(res.data);
-    setSidebarOpen(false);
+    if (isMobile()) setSidebarOpen(false);
   };
 
   const handleDeleteChat = async (id) => {
-    await api.delete(`/chats/${id}`);
-    setChats((prev) => prev.filter((c) => c.id !== id));
-    if (activeChat?.id === id) setActiveChat(null);
+    try {
+      console.log("Deleting chat with id:", id); // Debug log
+      await api.delete(`/chats/${id}`);
+      console.log("Delete successful");
+
+      // Update chats list
+      setChats((prev) => {
+        const newChats = prev.filter((c) => c.id !== id);
+        console.log("Updated chats:", newChats);
+        return newChats;
+      });
+
+      // If the deleted chat was active, clear it
+      if (activeChat?.id === id) {
+        console.log("Clearing active chat");
+        setActiveChat(null);
+        setItems([]);
+        navigate("/");
+      }
+    } catch (error) {
+      console.error("Delete failed:", error);
+      alert("Failed to delete chat. Please try again.");
+    }
   };
 
   const handleRenameChat = async (id, name) => {
     await api.put(`/chats/${id}`, { name });
     setChats((prev) => prev.map((c) => (c.id === id ? { ...c, name } : c)));
-    if (activeChat?.id === id) setActiveChat((prev) => ({ ...prev, name }));
-    navigate(`/${encodeURIComponent(name)}`); // add this line
+    if (activeChat?.id === id) {
+      setActiveChat((prev) => ({ ...prev, name }));
+      navigate(`/${encodeURIComponent(name)}`);
+    }
   };
 
   const handleSendItem = async (itemData) => {
+    if (!activeChat) return;
     const res = await api.post("/items", {
       ...itemData,
       chat_id: activeChat.id,
@@ -87,9 +128,8 @@ export default function Home() {
   };
 
   const handleSelectChat = (chat) => {
-    navigate(`/${encodeURIComponent(chat.name)}`);
     setActiveChat(chat);
-    setSidebarOpen(false);
+    if (isMobile()) setSidebarOpen(false);
   };
 
   return (
@@ -99,61 +139,70 @@ export default function Home() {
         height: "100dvh",
         overflow: "hidden",
         background: "var(--bg-0)",
-        // position: "relative",
         display: "flex",
-        flexDirection: "row",
-        // flexDirection: "column",
+        position: "relative",
       }}
     >
-      {/* Backdrop for sidebar on mobile */}
-      {/* {sidebarOpen && window.innerWidth < 768 && (
+      {/* Mobile backdrop - only show when sidebar is open on mobile */}
+      {sidebarOpen && isMobile() && (
         <div
           onClick={() => setSidebarOpen(false)}
           style={{
             position: "fixed",
-            inset: 0,
-            background: "rgba(0,0,0,0.6)",
-            zIndex: 40,
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: "rgba(0, 0, 0, 0.5)",
+            zIndex: 999,
           }}
         />
-      )} */}
+      )}
 
-      {/* Sidebar — always overlay on top */}
+      {/* Sidebar - always rendered but positioned differently on mobile */}
       <div
         style={{
-          width: sidebarOpen ? 256 : 0,
-          transition: "width 0.25s ease",
-          overflow: "hidden",
+          width: isMobile() ? (sidebarOpen ? "260px" : "0px") : "220px",
           height: "100%",
-          borderRight: sidebarOpen ? "1px solid var(--border-1)" : "none",
-          flexShrink: 0,
+          backgroundColor: "var(--bg-1)",
+          borderRight: isMobile() ? "none" : "1px solid var(--border)",
+          overflow: "hidden",
+          transition: "width 0.3s ease",
+          position: isMobile() ? "fixed" : "relative",
+          left: 0,
+          top: 0,
+          zIndex: 1000,
+          boxShadow:
+            isMobile() && sidebarOpen ? "2px 0 10px rgba(0,0,0,0.3)" : "none",
         }}
       >
-        <Sidebar
-          chats={chats}
-          activeChat={activeChat}
-          onSelectChat={handleSelectChat}
-          onNewChat={handleNewChat}
-          onDeleteChat={handleDeleteChat}
-          onRenameChat={handleRenameChat}
-        />
+        {sidebarOpen && (
+          <Sidebar
+            chats={chats}
+            activeChat={activeChat}
+            onSelectChat={handleSelectChat}
+            onNewChat={handleNewChat}
+            onDeleteChat={handleDeleteChat}
+            onRenameChat={handleRenameChat}
+          />
+        )}
       </div>
 
-      {/* Chat area — always full width */}
+      {/* Chat area */}
       <div
         style={{
           flex: 1,
-          display: "flex",
-          flexDirection: "column",
           height: "100%",
-          minWidth: 0,
+          width: isMobile() ? "100%" : `calc(100% - 220px)`,
+          marginLeft: isMobile() ? 0 : sidebarOpen ? "220px" : 0,
+          transition: "margin-left 0.3s ease",
         }}
       >
         <ChatArea
           chat={activeChat}
           items={items}
           sidebarOpen={sidebarOpen}
-          onToggleSidebar={() => setSidebarOpen((p) => !p)}
+          onToggleSidebar={() => setSidebarOpen(!sidebarOpen)}
           onSendItem={handleSendItem}
           onDeleteItem={handleDeleteItem}
           onEditItem={handleEditItem}
