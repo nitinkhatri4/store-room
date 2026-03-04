@@ -6,13 +6,7 @@
     "orientation": "portrait",
     "scheme": "storeroom",
     "userInterfaceStyle": "dark",
-    "splash": {
-      "backgroundColor": "#080909"
-    },
     "android": {
-      "adaptiveIcon": {
-        "backgroundColor": "#080909"
-      },
       "softwareKeyboardLayoutMode": "pan",
       "package": "com.yourname.storeroom",
       "permissions": [
@@ -27,6 +21,18 @@
       ]
     },
     "plugins": [
+      [
+        "expo-splash-screen",
+        {
+          "backgroundColor": "#080909",
+          "image": "./assets/splash-logo.png",
+          "imageWidth": 200,
+          "dark": {
+            "backgroundColor": "#080909",
+            "image": "./assets/splash-logo.png"
+          }
+        }
+      ],
       [
         "expo-media-library",
         {
