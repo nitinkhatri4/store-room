@@ -25,7 +25,6 @@ import {
   ActivityIndicator,
   Modal,
   Dimensions,
-  Clipboard,
 } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import * as ImagePicker from "expo-image-picker";
@@ -113,7 +112,6 @@ function TextBtn({
   );
 }
 
-// Minimal bin icon using views
 function DeleteBtn({ onPress }: { onPress: () => void }) {
   return (
     <TouchableOpacity
@@ -128,7 +126,6 @@ function DeleteBtn({ onPress }: { onPress: () => void }) {
           justifyContent: "center",
         }}
       >
-        {/* lid */}
         <View
           style={{
             width: 12,
@@ -138,7 +135,6 @@ function DeleteBtn({ onPress }: { onPress: () => void }) {
             marginBottom: 1,
           }}
         />
-        {/* handle on lid */}
         <View
           style={{
             width: 5,
@@ -149,7 +145,6 @@ function DeleteBtn({ onPress }: { onPress: () => void }) {
             marginBottom: 2,
           }}
         />
-        {/* body */}
         <View
           style={{
             width: 10,
@@ -161,7 +156,6 @@ function DeleteBtn({ onPress }: { onPress: () => void }) {
             borderBottomRightRadius: 1,
           }}
         >
-          {/* lines inside */}
           <View
             style={{
               flexDirection: "row",
@@ -192,7 +186,6 @@ function DeleteBtn({ onPress }: { onPress: () => void }) {
   );
 }
 
-// Full content preview modal
 function PreviewModal({
   visible,
   content,
@@ -308,17 +301,13 @@ function LightboxViewer({
 }) {
   const scale = useSharedValue(1);
   const pinchRef = useRef(null);
-
   const animStyle = useAnimatedStyle(() => ({
     transform: [{ scale: scale.value }],
   }));
-
   const onPinchEvent = ({ nativeEvent }: any) => {
-    if (nativeEvent.state === State.ACTIVE) {
+    if (nativeEvent.state === State.ACTIVE)
       scale.value = Math.max(1, Math.min(nativeEvent.scale, 5));
-    }
   };
-
   const onPinchEnd = ({ nativeEvent }: any) => {
     if (
       nativeEvent.state === State.END ||
@@ -327,9 +316,7 @@ function LightboxViewer({
       if (scale.value < 1.1) scale.value = withTiming(1);
     }
   };
-
   if (!src) return null;
-
   return (
     <GestureHandlerRootView style={s.lightbox}>
       <View
@@ -426,16 +413,24 @@ function ItemCard({
     try {
       const localUri = FileSystem.documentDirectory + filename;
       const { uri } = await FileSystem.downloadAsync(url, localUri);
-      // always try gallery save for images
-      const { status } = await MediaLibrary.requestPermissionsAsync();
-      if (status === "granted") {
-        await MediaLibrary.saveToLibraryAsync(uri);
-        Alert.alert("Saved", `${filename} saved to gallery ✓`);
+      const isImage = mimeType?.startsWith("image/");
+      if (isImage) {
+        const { status } = await MediaLibrary.requestPermissionsAsync();
+        if (status === "granted") {
+          await MediaLibrary.saveToLibraryAsync(uri);
+          Alert.alert("Saved", `${filename} saved to gallery ✓`);
+        } else {
+          Alert.alert(
+            "Permission denied",
+            "Allow storage permission to save images",
+          );
+        }
       } else {
-        Alert.alert(
-          "Permission denied",
-          "Allow storage permission to save files",
-        );
+        // PDFs and other files — use share sheet
+        await Sharing.shareAsync(uri, {
+          dialogTitle: filename,
+          mimeType: mimeType || "*/*",
+        });
       }
     } catch (e) {
       console.log("download error", e);
@@ -639,7 +634,6 @@ function ItemCard({
       );
     }
 
-    // note
     if (editing) {
       return (
         <View style={{ marginTop: 8 }}>
@@ -837,8 +831,13 @@ export default function Collection() {
       });
       setItems((prev) => [...prev, itemRes.data]);
       scrollToBottom();
-    } catch {
-      Alert.alert("Error", "Upload failed");
+    } catch (e: any) {
+      console.log("upload error", e?.response?.data || e?.message || e);
+      Alert.alert(
+        "Error",
+        "Upload failed: " +
+          (e?.response?.data?.message || e?.message || "unknown error"),
+      );
     } finally {
       setUploading(false);
     }
