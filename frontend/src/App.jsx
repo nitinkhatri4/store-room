@@ -4,6 +4,7 @@ import Home from "./pages/Home";
 import Register from "./pages/Register";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
+import Share from "./pages/Share";
 import { ThemeProvider } from "./context/ThemeContext";
 
 function PrivateRoute({ children }) {
@@ -20,6 +21,7 @@ export default function App() {
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/login" element={<Login />} />
+          <Route path="/share/:token" element={<Share />} />
           <Route
             path="/"
             element={

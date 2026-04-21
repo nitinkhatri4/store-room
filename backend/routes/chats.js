@@ -84,4 +84,46 @@ router.delete("/:id", authMiddleware, async (req, res) => {
   }
 });
 
+// Generate share link
+router.post("/:id/share", authMiddleware, async (req, res) => {
+  try {
+    const [chat] = await db.query(
+      "SELECT * FROM chats WHERE id = ? AND user_id = ?",
+      [req.params.id, req.user.id],
+    );
+    if (chat.length === 0)
+      return res.status(403).json({ message: "Not authorized" });
+
+    // generate random token
+    const token = require("crypto").randomBytes(32).toString("hex");
+    await db.query("UPDATE chats SET share_token = ? WHERE id = ?", [
+      token,
+      req.params.id,
+    ]);
+    res.json({ token });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+// Public route - get shared collection by token (no auth)
+router.get("/shared/:token", async (req, res) => {
+  try {
+    const [chats] = await db.query(
+      "SELECT * FROM chats WHERE share_token = ?",
+      [req.params.token],
+    );
+    if (chats.length === 0)
+      return res.status(404).json({ message: "Not found" });
+    const chat = chats[0];
+    const [items] = await db.query(
+      "SELECT * FROM items WHERE chat_id = ? ORDER BY created_at ASC",
+      [chat.id],
+    );
+    res.json({ chat, items });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
 module.exports = router;
