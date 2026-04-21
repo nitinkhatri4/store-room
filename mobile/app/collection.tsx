@@ -33,6 +33,7 @@ import * as Sharing from "expo-sharing";
 import * as FileSystem from "expo-file-system/legacy";
 import * as MediaLibrary from "expo-media-library";
 import * as ClipboardAPI from "expo-clipboard";
+import * as ExpoSharing from "expo-sharing";
 import api from "../api";
 
 const { width: SW } = Dimensions.get("window");
@@ -760,6 +761,7 @@ export default function Collection() {
   const [uploading, setUploading] = useState(false);
   const [showAttach, setShowAttach] = useState(false);
   const [lightboxSrc, setLightboxSrc] = useState<string | null>(null);
+  const [sharing, setSharing] = useState(false);
   const router = useRouter();
   const listRef = useRef<FlatList>(null);
 
@@ -876,6 +878,23 @@ export default function Collection() {
     }
   };
 
+  const handleShare = async () => {
+    setSharing(true);
+    try {
+      const res = await api.post(`/chats/${id}/share`);
+      const link = `https://storeroomapp.me/share/${res.data.token}`;
+      await ClipboardAPI.setStringAsync(link);
+      Alert.alert("Link copied!", link, [
+        { text: "OK" },
+        { text: "Open", onPress: () => Linking.openURL(link) },
+      ]);
+    } catch (e) {
+      Alert.alert("Error", "Could not generate share link");
+    } finally {
+      setSharing(false);
+    }
+  };
+
   const handleDelete = (itemId: number) => {
     Alert.alert("Delete", "Delete this item?", [
       { text: "Cancel", style: "cancel" },
@@ -908,6 +927,23 @@ export default function Collection() {
         <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
           {uploading && <ActivityIndicator size="small" color="#666" />}
           <Text style={s.headerCount}>{items.length} items</Text>
+          <TouchableOpacity
+            onPress={handleShare}
+            disabled={sharing}
+            style={{
+              paddingHorizontal: 8,
+              paddingVertical: 4,
+              borderRadius: 3,
+              borderWidth: 1,
+              borderColor: "rgba(255,255,255,0.09)",
+            }}
+          >
+            <Text
+              style={{ color: "#555", fontFamily: "monospace", fontSize: 10 }}
+            >
+              {sharing ? "..." : "share"}
+            </Text>
+          </TouchableOpacity>
         </View>
       </View>
 

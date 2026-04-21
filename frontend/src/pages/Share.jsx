@@ -60,11 +60,21 @@ export default function Share() {
 
   return (
     <div
-      style={{ minHeight: "100vh", background: "#080909", color: "#f0f0f0" }}
+      style={{
+        minHeight: "100vh",
+        background: "#080909",
+        color: "#f0f0f0",
+        display: "flex",
+        flexDirection: "column",
+      }}
     >
-      {/* Header */}
+      {/* Header — fixed */}
       <div
         style={{
+          position: "sticky",
+          top: 0,
+          zIndex: 10,
+          background: "#080909",
           borderBottom: "1px solid rgba(255,255,255,0.09)",
           padding: "12px 24px",
           display: "flex",
@@ -106,34 +116,61 @@ export default function Share() {
         </div>
       </div>
 
-      {/* Items */}
-      <div
-        style={{
-          maxWidth: 720,
-          margin: "0 auto",
-          padding: "24px 20px",
-          display: "flex",
-          flexDirection: "column",
-          gap: 10,
-        }}
-      >
-        {items.length === 0 ? (
-          <p
+      {/* Scrollable items */}
+      <div style={{ flex: 1, overflowY: "auto", padding: "24px 20px" }}>
+        <div
+          style={{
+            maxWidth: 720,
+            margin: "0 auto",
+            display: "flex",
+            flexDirection: "column",
+            gap: 10,
+          }}
+        >
+          {items.length === 0 ? (
+            <p
+              style={{
+                fontFamily: "monospace",
+                color: "#444",
+                fontSize: 13,
+                textAlign: "center",
+                marginTop: 60,
+              }}
+            >
+              nothing here
+            </p>
+          ) : (
+            items.map((item) => (
+              <SharedItem
+                key={item.id}
+                item={item}
+                onImageClick={setLightbox}
+              />
+            ))
+          )}
+        </div>
+
+        {/* Footer */}
+        <div
+          style={{
+            textAlign: "center",
+            padding: "40px 0 24px",
+            borderTop: "1px solid rgba(255,255,255,0.05)",
+            marginTop: 40,
+          }}
+        >
+          <a
+            href="https://storeroomapp.me"
             style={{
               fontFamily: "monospace",
+              fontSize: 11,
               color: "#444",
-              fontSize: 13,
-              textAlign: "center",
-              marginTop: 60,
+              textDecoration: "none",
             }}
           >
-            nothing here
-          </p>
-        ) : (
-          items.map((item) => (
-            <SharedItem key={item.id} item={item} onImageClick={setLightbox} />
-          ))
-        )}
+            storeroomapp.me — your personal vault
+          </a>
+        </div>
       </div>
 
       {/* Lightbox */}
@@ -158,31 +195,10 @@ export default function Share() {
               maxHeight: "90vh",
               objectFit: "contain",
             }}
+            alt=""
           />
         </div>
       )}
-
-      {/* Footer */}
-      <div
-        style={{
-          textAlign: "center",
-          padding: "40px 0 24px",
-          borderTop: "1px solid rgba(255,255,255,0.05)",
-          marginTop: 40,
-        }}
-      >
-        <a
-          href="https://storeroomapp.me"
-          style={{
-            fontFamily: "monospace",
-            fontSize: 11,
-            color: "#444",
-            textDecoration: "none",
-          }}
-        >
-          storeroomapp.me — your personal vault
-        </a>
-      </div>
     </div>
   );
 }
@@ -241,7 +257,6 @@ function SharedItem({ item, onImageClick }) {
         padding: 12,
       }}
     >
-      {/* Header row */}
       <div
         style={{
           display: "flex",
@@ -259,6 +274,7 @@ function SharedItem({ item, onImageClick }) {
             borderRadius: 3,
             padding: "2px 6px",
             letterSpacing: 0.5,
+            flexShrink: 0,
           }}
         >
           {badgeLabels[item.type] || "NOTE"}
@@ -289,7 +305,6 @@ function SharedItem({ item, onImageClick }) {
         </span>
       </div>
 
-      {/* Content */}
       {item.type === "note" && (
         <div>
           <p
@@ -298,7 +313,7 @@ function SharedItem({ item, onImageClick }) {
               fontSize: 13,
               color: "#aaa",
               lineHeight: 1.6,
-              margin: 0,
+              margin: "0 0 8px",
               whiteSpace: "pre-wrap",
             }}
           >
@@ -307,7 +322,6 @@ function SharedItem({ item, onImageClick }) {
           <button
             onClick={() => copy(item.content)}
             style={{
-              marginTop: 8,
               fontFamily: "monospace",
               fontSize: 11,
               color: copied ? "#4ade80" : "#555",
@@ -440,6 +454,7 @@ function SharedItem({ item, onImageClick }) {
             objectFit: "cover",
             display: "block",
           }}
+          alt={item.title}
         />
       )}
 
