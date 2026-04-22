@@ -61,11 +61,12 @@ export default function Share() {
   return (
     <div
       style={{
-        minHeight: "100vh",
+        height: "100vh",
         background: "#080909",
         color: "#f0f0f0",
         display: "flex",
         flexDirection: "column",
+        overflow: "hidden",
       }}
     >
       {/* Header — fixed */}
